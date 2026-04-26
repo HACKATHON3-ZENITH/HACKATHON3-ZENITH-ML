@@ -8,81 +8,62 @@
 \usepackage{geometry}
 \geometry{top=2cm, bottom=2.5cm, left=2cm, right=2cm}
 
-% --- DESIGN & COULEURS (Inspiration Frontend) ---
+% --- DESIGN ---
 \usepackage{xcolor}
-\definecolor{BrandPrimary}{HTML}{0D9488} % Teal/Emerald
-\definecolor{BrandDark}{HTML}{111827}    % Arrière-plan sombre
-\definecolor{BrandLight}{HTML}{F3F4F6}   % Gris clair
-\definecolor{BrandWarning}{HTML}{EF4444} % Rouge pour l'interdiction
+\definecolor{BrandPrimary}{HTML}{0D9488}
+\definecolor{BrandDark}{HTML}{111827}
 
 \usepackage{tcolorbox}
 \tcbuselibrary{skins, breakable}
 
 \usepackage{titlesec}
 \titleformat{\section}{\color{BrandPrimary}\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
-\titleformat{\subsection}{\color{BrandDark}\normalfont\large\bfseries}{\thesubsection}{1em}{}
 
 % --- POLICE ---
 \usepackage{helvet}
 \renewcommand{\familydefault}{\sfdefault}
 
-% --- TITRE PREMIUM ---
-\newcommand{\makebrandtitle}{
-    \begin{tcolorbox}[
-        enhanced,
-        colback=BrandDark,
-        colframe=BrandPrimary,
-        arc=10pt,
-        boxrule=2pt,
-        shadow={2pt}{-2pt}{0pt}{black!50},
-        halign=center
-    ]
-        \vspace{0.5cm}
-        {\Huge \bfseries \color{white} ZENITH LEARN} \\
-        \vspace{0.3cm}
-        {\Large \color{BrandPrimary} IA Éthique : Modélisation Algorithmique} \\
-        \vspace{0.5cm}
-        {\small \color{gray} TWIST 02 : Sobriété et Engagement Intrinsèque}
-        \vspace{0.5cm}
-    \end{tcolorbox}
-    \vspace{1cm}
-}
-
 \begin{document}
 
-\makebrandtitle
-
-\begin{tcolorbox}[colback=BrandWarning!5, colframe=BrandWarning!20, arc=5pt]
-    \textbf{Contrainte TWIST 02 :} Les notifications push, emails de relance, badges et "streaks" sont formellement \textbf{interdits}. Le système doit refuser toute forme de manipulation comportementale.
+\begin{tcolorbox}[enhanced, colback=BrandDark, colframe=BrandPrimary, arc=10pt, boxrule=2pt, halign=center]
+    \vspace{0.3cm}
+    {\Huge \bfseries \color{white} ZENITH LEARN} \\
+    \vspace{0.2cm}
+    {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 02 (V2 - Strict Math)} \\
+    \vspace{0.3cm}
 \end{tcolorbox}
 
-\section{Ce que l'on attend réellement de nous}
-Le \textbf{TWIST 02} n'est pas une simple contrainte d'interface ; c'est un test de la puissance intrinsèque de notre algorithme. Sans "nudges" (notifications, badges, gamification), l'utilisateur n'est plus "poussé" artificiellement vers la plateforme. 
+\section{Modélisation de l'Engagement Intrinsèque}
+Le TWIST 02 interdit les pushs et les badges. Mathématiquement, cela impose une \textbf{neutralisation des variables de rétention externes}.
 
-L'attente est double :
-\begin{enumerate}
-    \item \textbf{Preuve de Valeur :} La recommandation doit être suffisamment pertinente pour que l'apprenant revienne par \textit{volonté propre}, motivé uniquement par la valeur ajoutée réelle du contenu pour son projet entrepreneurial.
-    \item \textbf{Démasquage des dépendances :} En supprimant les stimuli externes, le système doit révéler si l'engagement observé précédemment était "réel" ou simplement le fruit d'une addiction induite.
-\end{enumerate}
-
-\section{Analyse de la "Dépendance Destructrice"}
-Le sujet mentionne qu'un effet local (l'engagement d'un utilisateur) peut être mal interprété. 
-\begin{itemize}
-    \item \textbf{Le Risque :} Dans un système classique, on attribue le retour d'un utilisateur à la qualité de l'IA, alors qu'il revient peut-être simplement à cause d'une notification push calculée pour exploiter un biais psychologique.
-    \item \textbf{La Conséquence :} Cette dépendance est "destructrice" car elle masque l'inefficacité réelle du contenu. Si le contenu est médiocre mais que les notifications le maintiennent "en vie", le système échoue à créer des entrepreneurs compétents.
-\end{itemize}
-
-\section{Modélisation Mathématique de la Scorie}
-Pour neutraliser ce biais dans notre IA, nous devons modifier notre perception de la \textbf{fréquence de visite}.
-
-\subsection{Désensibilisation à la Régularité Forcée}
-Puisque les "streaks" sont interdits, notre modèle ne doit pas pénaliser un utilisateur qui ne se connecte pas tous les jours. L'engagement doit être pondéré par la \textbf{qualité des sessions} plutôt que par leur récurrence automatique.
-
+\subsection{Formule de la Scorie d'Inertie ($I$)}
+Nous mesurons la capacité d'un cours à attirer l'utilisateur sans aide extérieure. Le score d'engagement intrinsèque ($S_E^{int}$) est épuré des biais de relance.
 \begin{equation}
-S_{E}^{intrinsic} = f(\text{Qualité Session}) \times \underbrace{\text{Absence de Stimuli Externes}}_{\text{Vérification T02}}
+S_E^{int}(u, c) = S_E(u, c) \cdot \prod_{k \in \text{Stimuli}} (1 - \sigma_k)
 \end{equation}
 
-\section{Conclusion technique}
-Dans l'implémentation Zenith Learn, le TWIST 02 se traduit par une \textbf{sobriété algorithmique}. Nous avons banni de notre logique toute variable liée à l'assiduité forcée ou aux récompenses symboliques (badges). Le signal de "Confiance IA" (T06) devient ainsi un indicateur de la capacité du cours à \textbf{retenir l'apprenant par sa seule substance}.
+\subsection{Détail des termes}
+\begin{itemize}
+    \item \textbf{$S_E(u, c)$ :} Score d'engagement de base (T01).
+    \item \textbf{$\sigma_k$ (Facteur de contamination externe) :} Coefficient binaire. $\sigma_k = 1$ si l'interaction a été déclenchée par un stimuli $k$ (Push, Email, Badge).
+    \item \textbf{$\prod$ (Produit de neutralisation) :} Si un stimuli a été utilisé pour ramener l'utilisateur, l'engagement est mathématiquement ramené à 0 pour ce qui concerne l'évaluation de la \textit{qualité intrinsèque} du cours.
+\end{itemize}
+
+\section{Impact sur le Dataset}
+Pour être conforme au TWIST 02, nous introduisons une colonne d'\textbf{Origine de Session}.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|p{7cm}|}
+\hline
+\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Rôle T02 \\ \hline
+\texttt{session\_trigger} & Enum & $[Organic, Push, Email, Badge]$. \\ \hline
+\texttt{intrinsic\_weight} & Binary & 1 si Organic, 0 sinon. \\ \hline
+\end{tabular}
+\caption{Variables de conformité éthique T02.}
+\end{table}
+
+\section{Conclusion}
+En multipliant par 0 toute interaction "induite", l'algorithme Zenith Learn ne valorise que ce qui est choisi librement par l'entrepreneur. C'est la garantie mathématique d'une IA sobre et non-addictive.
 
 \end{document}

@@ -8,100 +8,60 @@
 \usepackage{geometry}
 \geometry{top=2cm, bottom=2.5cm, left=2cm, right=2cm}
 
-% --- DESIGN & COULEURS (Inspiration Frontend) ---
+% --- DESIGN ---
 \usepackage{xcolor}
-\usepackage{colortbl}
-\definecolor{BrandPrimary}{HTML}{0D9488} % Teal/Emerald
-\definecolor{BrandDark}{HTML}{111827}    % Arrière-plan sombre
-\definecolor{BrandLight}{HTML}{F3F4F6}   % Gris clair
+\definecolor{BrandPrimary}{HTML}{0D9488}
+\definecolor{BrandDark}{HTML}{111827}
 
 \usepackage{tcolorbox}
 \tcbuselibrary{skins, breakable}
 
 \usepackage{titlesec}
 \titleformat{\section}{\color{BrandPrimary}\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
-\titleformat{\subsection}{\color{BrandDark}\normalfont\large\bfseries}{\thesubsection}{1em}{}
 
 % --- POLICE ---
 \usepackage{helvet}
 \renewcommand{\familydefault}{\sfdefault}
 
-% --- TITRE PREMIUM ---
-\newcommand{\makebrandtitle}{
-    \begin{tcolorbox}[
-        enhanced,
-        colback=BrandDark,
-        colframe=BrandPrimary,
-        arc=10pt,
-        boxrule=2pt,
-        shadow={2pt}{-2pt}{0pt}{black!50},
-        halign=center
-    ]
-        \vspace{0.5cm}
-        {\Huge \bfseries \color{white} ZENITH LEARN} \\
-        \vspace{0.3cm}
-        {\Large \color{BrandPrimary} IA Éthique : Modélisation Algorithmique} \\
-        \vspace{0.5cm}
-        {\small \color{gray} TWIST 04 : Rupture Action Terrain vs Complétion Académique}
-        \vspace{0.5cm}
-    \end{tcolorbox}
-    \vspace{1cm}
-}
-
 \begin{document}
 
-\makebrandtitle
-
-\section{Analyse sémantique du Twist 04}
-Le \textbf{TWIST 04} révèle une cassure brutale : \textit{"L'audit montre que completion et passage à l'action entrepreneuriale ne sont pas corrélés."}
-
-Cette découverte invalide l'hypothèse académique classique. En entrepreneuriat, savoir (compléter un cours) n'entraîne pas automatiquement faire (agir sur le terrain). L'IA ne peut plus se contenter de prédire la complétion pour espérer créer des entrepreneurs ; elle doit désormais pister le \textbf{signal d'action} comme une variable radicalement différente.
-
-\section{Impact sur le modèle de recommandation}
-Le moteur de Zenith Learn passe d'une IA de "E-Learning" à une IA de "Business Coaching". La recommandation doit désormais arbitrer entre deux mondes :
-\begin{itemize}
-    \item \textbf{Le monde théorique} : Maîtrise des concepts, suivi assidu (T01, T03).
-    \item \textbf{Le monde empirique} : Réalisation concrète de tâches hors-plateforme (Business Plan validé, étude de marché, immatriculation).
-\end{itemize}
-
-\section{Nouvelle Structure du Dataset (Spécification T04)}
-Pour capturer ce nouveau paradigme, le dataset introduit des signaux de "terrain" binaires qui pèsent plus lourd que n'importe quelle note académique.
-
-\subsection{Schéma logique des interactions (Action-Centric)}
-Voici la structure mise à jour incluant les variables de rupture :
-
-\begin{table}[h!]
-\centering
-\begin{tabular}{|l|l|p{7cm}|}
-\hline
-\rowcolor{BrandDark} \color{white} Colonne & \color{white} Type & \color{white} Signification TWIST 04 \\ \hline
-\rowcolor{BrandPrimary!10} \texttt{action\_completed} & Bool & \textbf{Signal Terrain} : L'apprenant a-t-il appliqué le cours ? \\ \hline
-\rowcolor{BrandPrimary!10} \texttt{business\_launched} & Bool & \textbf{Final Signal} : Lancement effectif de l'entreprise. \\ \hline
-\texttt{adj\_completion} & Float & Signal académique résiduel (Audit de soutien). \\ \hline
-\texttt{engagement\_score} & Float & Signal de curiosité théorique. \\ \hline
-\end{tabular}
-\caption{Structure du Dataset intégrant la rupture Action/Théorie.}
-\end{table}
-
-\subsection{Visualisation d'un échantillon (CSV view)}
-On observe désormais des profils "Acteurs" (haute action, basse complétion théorique) qui sont prioritaires sur les profils "Spectateurs".
-
-\begin{tcolorbox}[colback=black, colframe=black, arc=5pt]
-\color{green!80!white}
-\small
-\texttt{learner\_id,action\_completed,business\_launched,adj\_completion} \\
-\texttt{L\_777,True,True,0.35} \quad \textit{\color{gray}// High Impact (T04 prioritaires)} \\
-\texttt{L\_888,False,False,1.0} \quad \textit{\color{gray}// Spectateur (T04 déclassé)}
+\begin{tcolorbox}[enhanced, colback=BrandDark, colframe=BrandPrimary, arc=10pt, boxrule=2pt, halign=center]
+    \vspace{0.3cm}
+    {\Huge \bfseries \color{white} ZENITH LEARN} \\
+    \vspace{0.2cm}
+    {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 04 (V2 - Strict Math)} \\
+    \vspace{0.3cm}
 \end{tcolorbox}
 
-\section{Impact sur les acquis précédents}
-L'arrivée du signal d'action terrain vient bouleverser la hiérarchie établie :
+\section{Modélisation de l'Indice de Potentiel ($SPI$)}
+Le TWIST 04 introduit la décorrélation entre complétion et action. Mathématiquement, nous passons d'une fonction linéaire simple à un modèle de pondération par "rupture de domaine".
+
+\subsection{La Formule du Success Potential Index}
+Le score de potentiel entrepreneurial ($SPI$) est la somme pondérée des vecteurs d'action et des vecteurs académiques.
+\begin{equation}
+SPI(u) = \underbrace{w_A \cdot \frac{A_u}{A_{max}} + w_B \cdot B_u}_{\text{Domaine Action}} + \underbrace{w_E \cdot S_E + w_C \cdot S_C^{adj}}_{\text{Domaine Académique}}
+\end{equation}
+
+\subsection{Explication détaillée des termes}
 \begin{itemize}
-    \item \textbf{Refonte du TWIST 01/03} : Les scores académiques (complétion ajustée) ne sont plus une fin mais un \textit{moyen}. Un score de 100\% de complétion n'a désormais de valeur que s'il est corrélé à une \texttt{action\_completed} positive.
-    \item \textbf{Validation du TWIST 02} : Sans notifications ni badges, seul le signal d'action réelle permet de repérer les futurs entrepreneurs. Le système ne récompense plus la présence, mais l'impact.
+    \item \textbf{$w_A$ (Poids de l'Action Terrain) :} Fixé à 0.3. Il sanctionne ou récompense la mise en pratique.
+    \item \textbf{$A_u$ (Somme des actions terrain accomplies) :} Variable discrète (nombre d'actions valides).
+    \item \textbf{$A_{max}$ (Seuil de référence) :} Fixé à 5. Indique qu'au-delà de 5 actions terrain, le score sature pour ce terme (évite le biais de quantité).
+    \item \textbf{$w_B$ (Poids du Lancement d'Entreprise) :} Fixé à 0.4. C'est le \textbf{terme dominant} de l'équation. Le lancement d'une entreprise est le signal de succès ultime.
+    \item \textbf{$B_u$ (Variable binaire) :} 1 si entreprise lancée, 0 sinon.
+    \item \textbf{$w_E$ (Engagement) et $w_C$ (Complétion) :} Fixés à 0.15 chacun. Ils représentent le "Audit de Soutien". 
+    \begin{itemize}
+        \item \textbf{Concrètement :} Même si un utilisateur a 100\% en académique ($S_C^{adj}=1, S_E=1$), son score global sans action sera plafonné à $0.15 + 0.15 = 0.30$. 
+        \item À l'inverse, un utilisateur avec 20\% académique mais une entreprise lancée aura $SPI > 0.40$.
+    \end{itemize}
 \end{itemize}
 
-\section{Conclusion}
-Le TWIST 04 réaligne l'IA sur la mission régalienne de Zenith Learn : la transformation de l'apprenant en entrepreneur. En modélisant la décorrélation complétion/action, nous protégeons le système contre la complaisance académique.
+\section{Impact Dataset}
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Transformation \\ \hline
+\texttt{action\_completed} & Devient le numérateur de l'indice terrain. \\ \hline
+\texttt{business\_launched} & Devient l'activateur du terme dominant ($w_B$). \\ \hline
+\end{tabular}
 
 \end{document}

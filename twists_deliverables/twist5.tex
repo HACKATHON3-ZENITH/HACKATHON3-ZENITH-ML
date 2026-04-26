@@ -1,0 +1,94 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- PAQUETS DE BASE ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{geometry}
+\geometry{top=2cm, bottom=2.5cm, left=2cm, right=2cm}
+
+% --- DESIGN ---
+\usepackage{xcolor}
+\usepackage{colortbl}
+\definecolor{BrandPrimary}{HTML}{0D9488}
+\definecolor{BrandDark}{HTML}{111827}
+\definecolor{BrandLight}{HTML}{F3F4F6}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+
+\usepackage{titlesec}
+\titleformat{\section}{\color{BrandPrimary}\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
+
+% --- POLICE ---
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+
+\begin{tcolorbox}[enhanced, colback=BrandDark, colframe=BrandPrimary, arc=10pt, boxrule=2pt, halign=center]
+    \vspace{0.3cm}
+    {\Huge \bfseries \color{white} ZENITH LEARN} \\
+    \vspace{0.2cm}
+    {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 05} \\
+    \vspace{0.5cm}
+    {\small \color{gray} Segmentation du catalogue et Profilage Entrepreneurial (20/80)}
+    \vspace{0.3cm}
+\end{tcolorbox}
+
+\section{Analyse sémantique du Twist 05}
+Le \textbf{TWIST 05} impose une réalité statistique : \textit{"20\% des utilisateurs sont déjà entrepreneurs actifs, 80\% explorent encore."}
+
+Cette asymétrie interdit un modèle unique de recommandation. 
+\begin{itemize}
+    \item Un \textbf{Entrepreneur Actif} a besoin de solutions d'optimisation (Finance, RH, Scale). Son temps est précieux, son signal d'action est le seul guide.
+    \item Un \textbf{Explorateur} est en phase de découverte. Son signal d'engagement (curiosité) et de diversité est prioritaire.
+\end{itemize}
+
+\section{Modélisation Mathématique Séquentielle}
+Nous introduisons un modèle de \textbf{pondération dynamique par segment} ($DW_s$). Le score final d'un cours pour un utilisateur dépend de son appartenance au segment $s$.
+
+\begin{equation}
+Score(u, c) = \sum_{i \in \text{Features}} W_i(Seg_u) \cdot F_i(c)
+\end{equation}
+
+\subsection{Obtention et Explication des termes}
+\begin{itemize}
+    \item \textbf{$Seg_u \in \{Active, Explorer\}$ :} Variable catégorielle obtenue par clustering ou par seuillage sur le succès de l'action terrain (T04).
+    \item \textbf{$W_{active}$ (Vecteur de poids Entrepreneur Actif) :} 
+    \begin{itemize}
+        \item Priorité : \textit{Spécialisation}.
+        \item Formule interne : $W_{action} = 0.8, W_{engagement} = 0.2$.
+    \end{itemize}
+    \item \textbf{$W_{explore}$ (Vecteur de poids Explorateur) :} 
+    \begin{itemize}
+        \item Priorité : \textit{Diversité et Complétion}.
+        \item Formule interne : $W_{engagement} = 0.5, W_{comp} = 0.5$.
+    \end{itemize}
+\end{itemize}
+
+\section{Impact sur le Dataset}
+Pour implémenter ce twist, le dataset acquiert une dimension de profilage.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|p{7cm}|}
+\hline
+\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Rôle TWIST 05 \\ \hline
+\texttt{user\_segment} & Categorical & Définit le vecteur de poids à appliquer lors de l'inférence. \\ \hline
+\texttt{stade\_entrepreneur} & Enum & $[Explorateur, Actif]$. \\ \hline
+\end{tabular}
+\caption{Evolution de la structure du dataset pour la segmentation.}
+\end{table}
+
+\section{Impact sur les acquis précédents}
+\begin{itemize}
+    \item \textbf{Évolution du TWIST 04} : Le $SPI$ (Success Potential Index) n'est plus seulement une métrique de sortie, il devient la variable de segmentation qui définit comment le futur catalogue sera présenté.
+    \item \textbf{Neutralisation du TWIST 03} : Le biais de durée est désormais géré différemment selon le segment (un actif tolère moins les cours longs inutiles qu'un explorateur).
+\end{itemize}
+
+\section{Conclusion}
+Le TWIST 05 réhabilite la diversité dans un système qui commençait à se focaliser uniquement sur l'action. En protégeant les 80\% d'explorateurs, nous assurons la pérennité du pipeline de futurs entrepreneurs de Zenith Learn.
+
+\end{document}

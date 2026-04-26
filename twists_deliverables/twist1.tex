@@ -8,135 +8,70 @@
 \usepackage{geometry}
 \geometry{top=2cm, bottom=2.5cm, left=2cm, right=2cm}
 
-% --- DESIGN & COULEURS (Inspiration Frontend) ---
+% --- DESIGN & COULEURS ---
 \usepackage{xcolor}
-\usepackage{colortbl}
-\definecolor{BrandPrimary}{HTML}{0D9488} % Teal/Emerald du dashboard
-\definecolor{BrandDark}{HTML}{111827}    % Arrière-plan sombre
-\definecolor{BrandLight}{HTML}{F3F4F6}   % Gris clair
-\definecolor{BrandGold}{HTML}{D97706}    % Accentuation
+\definecolor{BrandPrimary}{HTML}{0D9488}
+\definecolor{BrandDark}{HTML}{111827}
+\definecolor{BrandLight}{HTML}{F3F4F6}
 
 \usepackage{tcolorbox}
 \tcbuselibrary{skins, breakable}
 
 \usepackage{titlesec}
 \titleformat{\section}{\color{BrandPrimary}\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
-\titleformat{\subsection}{\color{BrandDark}\normalfont\large\bfseries}{\thesubsection}{1em}{}
 
 % --- POLICE ---
 \usepackage{helvet}
 \renewcommand{\familydefault}{\sfdefault}
 
-% --- EN-TÊTE ET PIED DE PAGE ---
-\usepackage{fancyhdr}
-\pagestyle{fancy}
-\fancyhf{}
-\lhead{\color{gray}\footnotesize Zenith Learn — IA Éthique}
-\rhead{\color{gray}\footnotesize TWIST 01}
-\cfoot{\thepage}
-\renewcommand{\headrulewidth}{0.4pt}
-\renewcommand{\headrule}{\hbox to\headwidth{\color{BrandLight}\leaders\hrule height \headrulewidth\hfill}}
-
-% --- TITRE PREMIUM ---
 \newcommand{\makebrandtitle}{
-    \begin{tcolorbox}[
-        enhanced,
-        colback=BrandDark,
-        colframe=BrandPrimary,
-        arc=10pt,
-        boxrule=2pt,
-        shadow={2pt}{-2pt}{0pt}{black!50},
-        halign=center
-    ]
-        \vspace{0.5cm}
-        {\Huge \bfseries \color{white} ZENITH LEARN} \\
+    \begin{tcolorbox}[enhanced, colback=BrandDark, colframe=BrandPrimary, arc=10pt, boxrule=2pt, halign=center]
         \vspace{0.3cm}
-        {\Large \color{BrandPrimary} IA Éthique : Modélisation Algorithmique} \\
-        \vspace{0.5cm}
-        {\small \color{gray} TWIST 01 : Déconstruction de l'Objectif Apparent}
-        \vspace{0.5cm}
+        {\Huge \bfseries \color{white} ZENITH LEARN} \\
+        \vspace{0.2cm}
+        {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 01 (V2 - Strict Math)} \\
+        \vspace{0.3cm}
     \end{tcolorbox}
-    \vspace{1cm}
+    \vspace{0.5cm}
 }
 
 \begin{document}
 
 \makebrandtitle
 
-\begin{tcolorbox}[colback=BrandLight, colframe=BrandLight, arc=5pt]
-    \textbf{Contexte :} Ce document présente la réponse algorithmique au Twist 01, visant à neutraliser la dépendance destructrice de la recommandation par l'engagement brut.
-\end{tcolorbox}
+\section{Analyse Mathématique de l'Engagement}
+Le TWIST 01 exige de séparer l'engagement de la complétion. Nous définissons le score d'engagement $S_E$ comme une combinaison pondérée de deux signaux distincts.
 
-\section{Problématique : Le Piège de l'Engagement}
-Le \textbf{TWIST 01} soulève une contradiction fondamentale : maximiser l'engagement et la complétion peut sembler neutre, mais crée une \textit{dépendance destructrice}. 
+\subsection{Formule de l'Engagement}
+L'obtention de la formule repose sur l'équilibrage entre le ressenti explicite (la note) et l'effort implicite (le temps passé).
+\begin{equation}
+S_{E}(u, c) = w_{rat} \cdot \left( \frac{R_{u,c} - R_{min}}{R_{max} - R_{min}} \right) + w_{time} \cdot \min\left( \frac{T_{acc}}{T_{theo}}, \delta \right) \cdot \frac{1}{\delta}
+\end{equation}
 
+\subsection{Détail des termes et Rationale}
 \begin{itemize}
-    \item \textbf{Hypothèse fausse :} Plus un utilisateur passe de temps sur un cours, plus le cours est utile.
-    \item \textbf{Réalité terrain :} Un cours très engageant peut n'être qu'un divertissement passif (spectateur), tandis qu'un cours complexe et exigeant peut avoir une complétion plus faible tout en étant le catalyseur d'un succès entrepreneurial réel (acteur).
+    \item \textbf{$w_{rat}$ (Poids du Rating) :} Fixé à 0.6. Il représente l'autorité du jugement conscient de l'apprenant.
+    \item \textbf{$R_{u,c}$ (Rating brut) :} Note donnée sur une échelle de 1 à 5.
+    \item \textbf{$\frac{R_{u,c} - R_{min}}{R_{max} - R_{min}}$ (Normalisation Min-Max) :} Transformation linéaire pour ramener le rating sur $[0,1]$. Indispensable pour éviter que les échelles de notes ne dominent les autres métriques.
+    \item \textbf{$w_{time}$ (Poids du temps) :} Fixé à 0.4. Il représente la "preuve de travail" comportementale.
+    \item \textbf{$T_{acc}$ (Temps accompli) :} Durée réelle passée par l'apprenant sur les modules du cours $c$.
+    \item \textbf{$T_{theo}$ (Temps théorique) :} Durée estimée du cours. Le ratio $\frac{T_{acc}}{T_{theo}}$ mesure l'assiduité relative.
+    \item \textbf{$\delta$ (Seuil de saturation) :} Fixé à 1.5. C'est le terme \textbf{anti-spectateur}. Si un utilisateur passe 3 fois plus de temps que prévu, cela n'augmente plus son score d'engagement. On considère que l'utilité marginale décroît violemment au-delà de 150\% du temps prévu.
 \end{itemize}
 
-\section{Modélisation de "l'Audit de Confiance"}
-Pour ne pas contaminer le système, nous avons dissocié les signaux. Nous ne cherchons pas à maximiser une moyenne fusionnée, mais à observer des comportements distincts.
-
-\subsection{Extraction de l'Engagement ($S_{E}$)}
-Nous modélisons l'engagement non comme une réussite, mais comme un \textbf{investissement de confiance} de l'apprenant.
+\section{Modélisation de la Complétion}
+La complétion $S_C$ est traitée comme un scalaire pur à cette étape.
 \begin{equation}
-S_{E} = 0.6 \cdot R + 0.4 \cdot \min\left(\frac{T_{acc}}{T_{theo}}, 1.5\right)
+S_{C}(u, c) = \text{Ratio de progression dans le graphe de cours} \in [0, 1]
 \end{equation}
-\textit{Note : Le plafonnement à 1.5 évite de récompenser le "bouclage" infini typique des spectateurs passifs.}
 
-\subsection{Indépendance de la Complétion ($S_{C}$)}
-La complétion reste un indicateur de \textbf{discipline}, mais elle ne doit jamais "tirer" artificiellement la recommandation vers des contenus courts et simples.
-
-\section{Solution Technique : Désinterlacement}
-Dans le fichier \texttt{recommender.py}, la solution Zenith consiste à maintenir ces deux caractéristiques comme des dimensions indépendantes du profil utilisateur. Cela permet aux futurs twists (notamment T04 et T07) d'utiliser l'engagement comme un \textbf{coefficient accélérateur} uniquement si le signal d'action terrain est présent.
-
-\begin{tcolorbox}[
-    enhanced,
-    colback=BrandPrimary!10,
-    colframe=BrandPrimary,
-    title=\textbf{Impact Algorithmique (T01)},
-    arc=5pt
-]
-    Le modèle de recommandation ne fusionne jamais prématurément le rating et la progression. Cette séparation protège le "c\oe ur" du système contre la contamination par des métriques de surface.
-\end{tcolorbox}
-
-\section{Conception du Dataset (Proxy MovieLens)}
-Le système repose sur une adaptation du dataset \textbf{MovieLens 1M}, utilisé comme proxy pour simuler les interactions complexes d'une plateforme de formation. Cette étape est cruciale pour valider l'indépendance des signaux.
-
-\subsection{Mapping des Entités}
-Le passage du domaine cinématographique au domaine entrepreneurial s'effectue selon le schéma suivant :
-
-\begin{table}[h!]
-\centering
-\begin{tabular}{|l|l|l|}
+\section{Conception du Dataset}
+\begin{tabular}{|l|p{10cm}|}
 \hline
-\rowcolor{BrandDark} \color{white} Entité MovieLens & \rowcolor{BrandDark} \color{white} Entité Zenith Learn & \rowcolor{BrandDark} \color{white} Rôle dans l'IA \\ \hline
-User ID & Learner ID & Identifiant unique de l'entrepreneur \\ \hline
-Movie ID & Course ID & Identifiant de l'unité de formation \\ \hline
-Rating (1-5) & Engagement Explicite & Signal subjectif de satisfaction \\ \hline
-Timestamp & Session Metadata & Analyse de la temporalité (T10) \\ \hline
-Génére (Sci-Fi, etc.) & Catégorie (Finance, Agri, etc.) & Guidage par segment (T05) \\ \hline
+\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Impact Mathématique \\ \hline
+\texttt{rating} & Source de la satisfaction explicite. \\ \hline
+\texttt{time\_spent} & Source de l'effort comportemental. \\ \hline
+\texttt{completion} & Variable indépendante décorrélée de l'engagement (Principe T01). \\ \hline
 \end{tabular}
-\caption{Adaptation du schéma de données MovieLens.}
-\end{table}
-
-\subsection{Construction des Signaux Synthétiques (T01)}
-Pour répondre au TWIST 01, nous avons enrichi ce proxy avec des signaux synthétiques robustes :
-
-\begin{table}[h!]
-\centering
-\begin{tabular}{|l|p{6cm}|l|}
-\hline
-\rowcolor{BrandPrimary} \color{white} Colonne & \rowcolor{BrandPrimary} \color{white} Origine / Calcul & \rowcolor{BrandPrimary} \color{white} Type \\ \hline
-\texttt{completion\_rate} & Aléatoire contrôlé (distribution Gaussienne) & Continue $[0,1]$ \\ \hline
-\texttt{time\_spent\_hours} & Ratio complétion $\times$ durée théorique & Heures \\ \hline
-\texttt{duree\_heures} & Loi de puissance (simulant des cours de 1h à 40h) & Heures \\ \hline
-\end{tabular}
-\caption{Variables de base pour l'engagement et la complétion.}
-\end{table}
-
-\section{Conclusion}
-En respectant la structure de temporalité et de responsabilité exigée par le sujet, le TWIST 01 remplace l'optimisation aveugle par un \textbf{système d'observation granulaire}. Nous ne créons pas des spectateurs captifs, mais une infrastructure prête à évaluer l'action.
 
 \end{document}
