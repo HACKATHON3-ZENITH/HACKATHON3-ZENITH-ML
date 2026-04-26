@@ -79,6 +79,9 @@ class ZenithRecommender:
         # TWIST 08 : Neutralisation du biais (Outliers)
         self.user_bias_factors: Dict[str, float] = {}
         self.outlier_user_ids: List[str] = []
+        
+        # TWIST 10 : Confiance des données d'action
+        self.user_action_confidence: Dict[str, float] = {}
 
         self._fitted = False
 
@@ -106,6 +109,10 @@ class ZenithRecommender:
         self._build_course_features()
         self._build_user_preference_profiles()
         self._compute_course_stats()
+        
+        # TWIST 10 : Calculer le niveau de confiance moyen des actions par utilisateur
+        conf_stats = self.interactions_df.groupby("learner_id")["action_confidence"].mean()
+        self.user_action_confidence = {str(uid): float(conf) for uid, conf in conf_stats.items()}
 
         # TWIST 08 : Détection des outliers avant segmentation
         self._detect_outliers()
@@ -600,24 +607,61 @@ class ZenithRecommender:
             
             # 5. TWIST 08 : Facteur de correction (Neutralisation disponibilité)
             bias_factor = self.user_bias_factors.get(uid, 1.0)
+
+            # 6. TWIST 10 : Niveau de confiance des données d'action
+            confidence = self.user_action_confidence.get(uid, 0.35)
+            
+            # Imputation prudente (TWIST 10) : Si pas d'actions déclarées, 
+            # on estime un petit potentiel basé sur la complétion sérieuse
+            imputed_action_val = 0.0
+            if action_count == 0 and not business_launched and avg_completion > 0.7:
+                imputed_action_val = avg_completion * 0.2  # Valeur imputée prudente
             
             # Calcul du Success Potential Score
             # Poids : Business (0.4) + Actions (0.3) + Engagement (0.15) + Segment (0.15)
-            # Puis redressé par le biais T08
-            # TWIST 09 : Décomposition pour le score de potentiel investisseur
+            
+            action_val = min(action_count / 5.0, 1.0) if action_count > 0 else imputed_action_val
+            
+            # TWIST 09 + TWIST 10 : Décomposition avec niveau de confiance
             contributions = [
-                {"variable": "Lancement d'entreprise", "weight": 0.40, "value": 1.0 if business_launched else 0.0, "contribution": 0.40 if business_launched else 0.0},
-                {"variable": "Actions terrain accomplies", "weight": 0.30, "value": round(min(action_count / 5.0, 1.0), 4), "contribution": round(0.30 * min(action_count / 5.0, 1.0), 4)},
-                {"variable": "Engagement moyen", "weight": 0.15, "value": round(avg_engagement, 4), "contribution": round(0.15 * avg_engagement, 4)},
-                {"variable": f"Segment ({segment})", "weight": 0.15, "value": 1.0 if segment == "entrepreneur_actif" else 0.4, "contribution": round(0.15 * (1.0 if segment == "entrepreneur_actif" else 0.4), 4)}
+                {
+                    "variable": "Lancement d'entreprise", 
+                    "weight": 0.40, 
+                    "value": 1.0 if business_launched else 0.0, 
+                    "contribution": 0.40 if business_launched else 0.0,
+                    "confidence": confidence if business_launched else 1.0 # 1.0 car certitude du 'non'
+                },
+                {
+                    "variable": "Actions terrain" + (" (Imputées T10)" if action_count == 0 else ""), 
+                    "weight": 0.30, 
+                    "value": round(action_val, 4), 
+                    "contribution": round(0.30 * action_val * confidence, 4), # Pondéré par la confiance (T10)
+                    "confidence": round(confidence, 2)
+                },
+                {
+                    "variable": "Engagement moyen", 
+                    "weight": 0.15, 
+                    "value": round(avg_engagement, 4), 
+                    "contribution": round(0.15 * avg_engagement, 4),
+                    "confidence": 1.0 # Donnée système fiable
+                },
+                {
+                    "variable": f"Segment ({segment})", 
+                    "weight": 0.15, 
+                    "value": 1.0 if segment == "entrepreneur_actif" else 0.4, 
+                    "contribution": round(0.15 * (1.0 if segment == "entrepreneur_actif" else 0.4), 4),
+                    "confidence": 0.85 # Prédit
+                }
             ]
+            
             if bias_factor < 1.0:
                 raw_score = sum(c["contribution"] for c in contributions)
                 contributions.append({
                     "variable": "Pénalité disponibilité (T08)", 
                     "weight": "multiplicatif", 
                     "value": round(bias_factor, 4), 
-                    "contribution": round(raw_score * bias_factor - raw_score, 4)
+                    "contribution": round(raw_score * bias_factor - raw_score, 4),
+                    "confidence": 1.0
                 })
 
             score = sum(c["contribution"] for c in contributions)
@@ -631,7 +675,8 @@ class ZenithRecommender:
                     "avg_engagement": round(avg_engagement, 4),
                     "avg_completion": round(avg_completion, 4),
                     "categories_explored": int(categories_count),
-                    "segment": segment
+                    "segment": segment,
+                    "data_confidence": round(confidence, 2)
                 }
             })
             

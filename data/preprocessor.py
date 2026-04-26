@@ -144,4 +144,20 @@ def preprocess_interactions(
         axis=1,
     )
 
+    # ── TWIST 10 : Niveau de confiance des données d'action terrain ──
+    # Signal auto-déclaré (action_completed=1) → confiance 0.70
+    # Signal absent (action_completed=0) → imputation prudente (confiance 0.35)
+    # Signal vérifié (engagement exceptionnel) → confiance 1.00
+    
+    merged["action_confidence"] = 0.35  # Confiance par défaut (données rares/absentes)
+    
+    # Pour les actions déclarées (signal TWIST 04)
+    mask_declared = (merged["action_completed"] == 1) | (merged["business_launched"] == 1)
+    merged.loc[mask_declared, "action_confidence"] = 0.70
+    
+    # Simulation de données "Vérifiées" (ex: par un audit externe Twist 10)
+    # On considère que le top 10% des actions avec engagement maximum sont certifiées
+    mask_verified = mask_declared & (merged["engagement_score"] > 0.95)
+    merged.loc[mask_verified, "action_confidence"] = 1.00
+
     return merged
