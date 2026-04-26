@@ -4,6 +4,8 @@ model/explainer.py — Explications lisibles pour les créateurs de cours.
 TWIST 06 : Pour chaque cours, le système produit une explication basée
            sur les VRAIES variables du modèle (pas du texte générique).
            Un endpoint dédié expose ces explications.
+           Les variables utilisées incluent : l'engagement, la complétion ajustée,
+           et les taux d'action terrain/création d'entreprise.
 """
 from typing import Dict, List, Optional
 
