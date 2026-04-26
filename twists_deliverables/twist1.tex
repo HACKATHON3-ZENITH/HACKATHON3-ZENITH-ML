@@ -1,0 +1,62 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{hyperref}
+
+\title{Modélisation Algorithmique : TWIST 01\\ \large La formation qui crée des entrepreneurs, pas des spectateurs}
+\author{Zenith Learn - Équipe IA}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+L'objectif du \textbf{TWIST 01} s'inscrit dans la problématique de la plateforme Zenith Learn : passer d'un modèle de recommandation passif (type Netflix) à un modèle actif favorisant l'entrepreneuriat réel. Le sujet souligne un risque majeur : une hypothèse de départ en apparence neutre (maximiser l'engagement) peut devenir une \textit{dépendance destructrice}.
+
+\section{Objectif Apparent et Danger Implicite}
+L'objectif apparent est de recommander les cours maximisant :
+\begin{itemize}
+    \item \textbf{L'engagement} : Temps passé, interactions, notes (ratings).
+    \item \textbf{La complétion} : Pourcentage du parcours parcouru.
+\end{itemize}
+
+Cependant, le danger réside dans le fait que ces métriques favorisent souvent les "spectateurs" (ceux qui regardent beaucoup de vidéos) plutôt que les "acteurs" (ceux qui appliquent les concepts sur le terrain). Si le système optimise aveuglément ces deux variables sans les dissocier, il contamine les recommandations en poussant des contenus faciles à consommer mais peu utiles à la création d'entreprise.
+
+\section{Modélisation Mathématique Adoptée}
+Pour répondre à ce twist tout en préparant les suivants, nous avons choisi de modéliser ces deux signaux de manière \textbf{indépendante} et \textbf{non-fusionnée}, afin d'éviter la contamination mutuelle.
+
+\subsection{Calcul du Score d'Engagement ($S_{E}$)}
+Le score d'engagement est calculé en combinant le feedback explicite (note) et l'investissement temporel relatif :
+\begin{equation}
+S_{E}(u, c) = \alpha \cdot \text{Norm}(\text{Rating}_{u,c}) + (1 - \alpha) \cdot \text{Min}\left(\frac{T_{\text{spent}}}{T_{\text{expected}}}, \delta\right)
+\end{equation}
+Où :
+\begin{itemize}
+    \item $\alpha = 0.6$ (poids du rating).
+    \item $\delta = 1.5$ (plafond pour éviter que le sur-visionnage ne biaise positivement le score).
+\end{itemize}
+
+\subsection{Calcul du Score de Complétion ($S_{C}$)}
+La complétion est traitée comme un signal de discipline académique, séparé de la satisfaction :
+\begin{equation}
+S_{C}(u, c) = \text{Rate}_{\text{completion}}
+\end{equation}
+
+\section{Implémentation Technique}
+Dans notre pipeline de données (\texttt{preprocessor.py}), nous avons implémenté :
+\begin{itemize}
+    \item \texttt{compute\_engagement\_score} : Capture l'investissement subjectif.
+    \item \texttt{completion\_rate} : Capture la progression objective.
+\end{itemize}
+\textbf{Résultat} : En maintenant ces deux variables séparées dans le vecteur de caractéristiques (features), nous permettons au modèle de recommander des cours qui peuvent avoir une complétion faible (car difficiles) mais un engagement de haute qualité thérapeutique pour l'entrepreneur.
+
+\section{Conclusion}
+En traitant l'engagement et la complétion non pas comme une fin en soi, mais comme des signaux distincts à observer, nous neutralisons la "dépendance destructrice" identifiée dans le sujet. Cette modélisation servira de base au futur score de succès entrepreneurial, où l'action terrain viendra arbitrer ces deux signaux.
+
+\end{document}
