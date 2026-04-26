@@ -13,7 +13,6 @@
 \usepackage{colortbl}
 \definecolor{BrandPrimary}{HTML}{0D9488}
 \definecolor{BrandDark}{HTML}{111827}
-\definecolor{BrandLight}{HTML}{F3F4F6}
 
 \usepackage{tcolorbox}
 \tcbuselibrary{skins, breakable}
@@ -32,63 +31,48 @@
     {\Huge \bfseries \color{white} ZENITH LEARN} \\
     \vspace{0.2cm}
     {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 05} \\
-    \vspace{0.5cm}
-    {\small \color{gray} Segmentation du catalogue et Profilage Entrepreneurial (20/80)}
     \vspace{0.3cm}
 \end{tcolorbox}
 
-\section{Analyse sémantique du Twist 05}
-Le \textbf{TWIST 05} impose une réalité statistique : \textit{"20\% des utilisateurs sont déjà entrepreneurs actifs, 80\% explorent encore."}
+\section{Analyse sémantique : La Loi des 20/80}
+Le \textbf{TWIST 05} établit une asymétrie de population : \textit{"20\% des utilisateurs sont déjà entrepreneurs actifs, 80\% explorent encore"}. Cela interdit un modèle unique de recommandation "One size fits all".
 
-Cette asymétrie interdit un modèle unique de recommandation. 
-\begin{itemize}
-    \item Un \textbf{Entrepreneur Actif} a besoin de solutions d'optimisation (Finance, RH, Scale). Son temps est précieux, son signal d'action est le seul guide.
-    \item Un \textbf{Explorateur} est en phase de découverte. Son signal d'engagement (curiosité) et de diversité est prioritaire.
-\end{itemize}
+\section{Modélisation de la Segmentation Dynamique}
+L'IA doit s'adapter en modifiant ses vecteurs de pondération en fonction du profil identifié.
 
-\section{Modélisation Mathématique Séquentielle}
-Nous introduisons un modèle de \textbf{pondération dynamique par segment} ($DW_s$). Le score final d'un cours pour un utilisateur dépend de son appartenance au segment $s$.
-
+\subsection{Formule du Score de Recommandation Segmenté}
 \begin{equation}
-Score(u, c) = \sum_{i \in \text{Features}} W_i(Seg_u) \cdot F_i(c)
+Score(u, c) = \vec{W}_{Seg(u)} \cdot \vec{F}_c
 \end{equation}
 
-\subsection{Obtention et Explication des termes}
+\subsection{Détail et Justification Mathématique du Profilage}
 \begin{itemize}
-    \item \textbf{$Seg_u \in \{Active, Explorer\}$ :} Variable catégorielle obtenue par clustering ou par seuillage sur le succès de l'action terrain (T04).
-    \item \textbf{$W_{active}$ (Vecteur de poids Entrepreneur Actif) :} 
-    \begin{itemize}
-        \item Priorité : \textit{Spécialisation}.
-        \item Formule interne : $W_{action} = 0.8, W_{engagement} = 0.2$.
-    \end{itemize}
-    \item \textbf{$W_{explore}$ (Vecteur de poids Explorateur) :} 
-    \begin{itemize}
-        \item Priorité : \textit{Diversité et Complétion}.
-        \item Formule interne : $W_{engagement} = 0.5, W_{comp} = 0.5$.
-    \end{itemize}
+    \item \textbf{$Seg(u) \in \{Active, Explorer\}$ (Variable Latente) :} 
+    Le segment est déterminé par un classifieur binaire basé sur le ratio Action/Engagement (T04).
+    \item \textbf{$\vec{W}_{Explorer} = [0.5, 0.5, 0, 0]$ (Vecteur Explorateur) :} 
+    Pour les 80\%, on privilégie la \textbf{Découverte} (Engagement + Complétion). On veut qu'ils trouvent leur voie. Les termes liés à l'action terrain sont nuls ou négligeables ici car ils n'ont pas encore de projet.
+    \item \textbf{$\vec{W}_{Active} = [0.1, 0.1, 0.4, 0.4]$ (Vecteur Acteur) :} 
+    Pour les 20\%, on privilégie l'\textbf{Efficacité}. L'action terrain et le lancement d'entreprise dominent (80\% du poids cumulé). Le système cherche le cours qui débloquera la prochaine étape concrète de leur business.
 \end{itemize}
 
-\section{Impact sur le Dataset}
-Pour implémenter ce twist, le dataset acquiert une dimension de profilage.
-
+\section{Nouvelle Structure du Dataset (Spécification T05)}
 \begin{table}[h!]
 \centering
 \begin{tabular}{|l|l|p{7cm}|}
 \hline
-\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Rôle TWIST 05 \\ \hline
-\texttt{user\_segment} & Categorical & Définit le vecteur de poids à appliquer lors de l'inférence. \\ \hline
-\texttt{stade\_entrepreneur} & Enum & $[Explorateur, Actif]$. \\ \hline
+\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Rôle T05 \\ \hline
+\rowcolor{BrandPrimary!20} \texttt{user\_segment} & Enum & $[Explorateur, Actif]$. \\ \hline
+\texttt{is\_explorer} & Binary & Utilisé pour injecter le vecteur de pondération correspondant. \\ \hline
 \end{tabular}
-\caption{Evolution de la structure du dataset pour la segmentation.}
 \end{table}
 
 \section{Impact sur les acquis précédents}
 \begin{itemize}
-    \item \textbf{Évolution du TWIST 04} : Le $SPI$ (Success Potential Index) n'est plus seulement une métrique de sortie, il devient la variable de segmentation qui définit comment le futur catalogue sera présenté.
-    \item \textbf{Neutralisation du TWIST 03} : Le biais de durée est désormais géré différemment selon le segment (un actif tolère moins les cours longs inutiles qu'un explorateur).
+    \item \textbf{Complexification du TWIST 04} : Le score de potentiel entrepreneurial ($SPI$) n'est plus une sortie statique, mais une entrée de segmentation.
+    \item \textbf{Affinement du TWIST 02/03} : Les règles de sobriété et de redressement de durée s'appliquent de manière différenciée. Un entrepreneur actif tolère moins de "bruit" pédagogique qu'un explorateur.
 \end{itemize}
 
 \section{Conclusion}
-Le TWIST 05 réhabilite la diversité dans un système qui commençait à se focaliser uniquement sur l'action. En protégeant les 80\% d'explorateurs, nous assurons la pérennité du pipeline de futurs entrepreneurs de Zenith Learn.
+Le TWIST 05 transforme Zenith Learn d'un catalogue uniforme en une plateforme capable de mener de front deux missions : l'\textbf{éveil entrepreneurial} (80\%) et l'\textbf{accélération d'impact} (20\%).
 
 \end{document}

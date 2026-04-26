@@ -10,6 +10,7 @@
 
 % --- DESIGN & COULEURS ---
 \usepackage{xcolor}
+\usepackage{colortbl}
 \definecolor{BrandPrimary}{HTML}{0D9488}
 \definecolor{BrandDark}{HTML}{111827}
 \definecolor{BrandLight}{HTML}{F3F4F6}
@@ -19,6 +20,7 @@
 
 \usepackage{titlesec}
 \titleformat{\section}{\color{BrandPrimary}\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
+\titleformat{\subsection}{\color{BrandDark}\normalfont\large\bfseries}{\thesubsection}{1em}{}
 
 % --- POLICE ---
 \usepackage{helvet}
@@ -29,7 +31,7 @@
         \vspace{0.3cm}
         {\Huge \bfseries \color{white} ZENITH LEARN} \\
         \vspace{0.2cm}
-        {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 01 (V2 - Strict Math)} \\
+        {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 01} \\
         \vspace{0.3cm}
     \end{tcolorbox}
     \vspace{0.5cm}
@@ -39,39 +41,72 @@
 
 \makebrandtitle
 
-\section{Analyse Mathématique de l'Engagement}
-Le TWIST 01 exige de séparer l'engagement de la complétion. Nous définissons le score d'engagement $S_E$ comme une combinaison pondérée de deux signaux distincts.
+\section{Introduction et Problématique}
+L'objectif du \textbf{TWIST 01} s'inscrit dans la problématique de la plateforme : passer d'un modèle de recommandation passif à un modèle actif favorisant l'entrepreneuriat réel. Le danger identifié est le "Piège de l'Engagement" : maximiser l'engagement et la complétion sans distinction crée une \textit{dépendance destructrice}.
 
-\subsection{Formule de l'Engagement}
-L'obtention de la formule repose sur l'équilibrage entre le ressenti explicite (la note) et l'effort implicite (le temps passé).
-\begin{equation}
-S_{E}(u, c) = w_{rat} \cdot \left( \frac{R_{u,c} - R_{min}}{R_{max} - R_{min}} \right) + w_{time} \cdot \min\left( \frac{T_{acc}}{T_{theo}}, \delta \right) \cdot \frac{1}{\delta}
-\end{equation}
-
-\subsection{Détail des termes et Rationale}
+\section{Objectif Apparent vs Réalité Algorithmique}
 \begin{itemize}
-    \item \textbf{$w_{rat}$ (Poids du Rating) :} Fixé à 0.6. Il représente l'autorité du jugement conscient de l'apprenant.
-    \item \textbf{$R_{u,c}$ (Rating brut) :} Note donnée sur une échelle de 1 à 5.
-    \item \textbf{$\frac{R_{u,c} - R_{min}}{R_{max} - R_{min}}$ (Normalisation Min-Max) :} Transformation linéaire pour ramener le rating sur $[0,1]$. Indispensable pour éviter que les échelles de notes ne dominent les autres métriques.
-    \item \textbf{$w_{time}$ (Poids du temps) :} Fixé à 0.4. Il représente la "preuve de travail" comportementale.
-    \item \textbf{$T_{acc}$ (Temps accompli) :} Durée réelle passée par l'apprenant sur les modules du cours $c$.
-    \item \textbf{$T_{theo}$ (Temps théorique) :} Durée estimée du cours. Le ratio $\frac{T_{acc}}{T_{theo}}$ mesure l'assiduité relative.
-    \item \textbf{$\delta$ (Seuil de saturation) :} Fixé à 1.5. C'est le terme \textbf{anti-spectateur}. Si un utilisateur passe 3 fois plus de temps que prévu, cela n'augmente plus son score d'engagement. On considère que l'utilité marginale décroît violemment au-delà de 150\% du temps prévu.
+    \item \textbf{Objectif Apparent :} Recommander les cours les plus regardés.
+    \item \textbf{Réalité Algorithmique :} Favorise les spectateurs passifs et pénalise les cours exigeants et structurants.
 \end{itemize}
 
-\section{Modélisation de la Complétion}
-La complétion $S_C$ est traitée comme un scalaire pur à cette étape.
+\section{Modélisation Mathématique Approfondie}
+Pour neutraliser ce piège, nous définissons le score d'engagement $S_E$ comme une combinaison pondérée de signaux explicites et comportementaux, avec un mécanisme de saturation.
+
+\subsection{Formule de l'Engagement ($S_E$)}
 \begin{equation}
-S_{C}(u, c) = \text{Ratio de progression dans le graphe de cours} \in [0, 1]
+S_{E}(u, c) = w_{rat} \cdot R_{norm}(u,c) + w_{time} \cdot \Psi(T_{acc}, T_{theo})
 \end{equation}
 
-\section{Conception du Dataset}
-\begin{tabular}{|l|p{10cm}|}
+\subsection{Détail et justification de chaque terme}
+\begin{itemize}
+    \item \textbf{$w_{rat} = 0.6$ (Poids de l'autorité consciente) :} 
+    Représente 60\% de la note finale. Nous accordons une prime au jugement explicite de l'utilisateur (le rating), car c'est le seul signal de satisfaction consciente.
+    
+    \item \textbf{$R_{norm}(u,c) = \frac{R_{u,c} - 1}{5 - 1}$ (Rating Normalisé) :} 
+    Le terme $R_{u,c}$ est la note brute (1 à 5). La normalisation $(R-min)/(max-min)$ projette cette valeur sur l'intervalle $[0, 1]$. Sans cela, une note de 5 écraserait mathématiquement les autres signaux (souvent décimaux).
+    
+    \item \textbf{$w_{time} = 0.4$ (Poids de l'investissement inconscient) :} 
+    Représente 40\% de la note. C'est le signal de "temps passé". Il sert de contre-pouvoir au rating : un utilisateur peut mettre une bonne note sans avoir vraiment investi du temps (politesse), ou inversement.
+    
+    \item \textbf{$\Psi(T_{acc}, T_{theo}) = \min\left( \frac{T_{acc}}{T_{theo}}, \delta \right) \cdot \frac{1}{\delta}$ (Fonction de Saturation) :} 
+    C'est le c\oe ur du TWIST 01.
+    \begin{itemize}
+        \item \textbf{$T_{acc}$ (Temps accompli) :} Heures réelles passées.
+        \item \textbf{$T_{theo}$ (Temps théorique) :} Durée standard du cours.
+        \item \textbf{$\delta = 1.5$ (Seuil de saturation) :} Pourquoi 1.5 ? Parce qu'au-delà de 150\% du temps prévu, passer plus de temps n'indique plus de l'intérêt, mais de la difficulté ou du visionnage passif (effet "spectateur"). 
+        \item \textbf{Concrètement : } Si $T_{acc} = 2h$ pour un cours de $1h$, le ratio est 2. La fonction $\min$ le ramène à $1.5$. Ainsi, l'utilisateur n'est pas récompensé plus qu'un autre pour avoir "stagné" sur le contenu.
+    \end{itemize}
+\end{itemize}
+
+\section{Conception du Dataset (Proxy MovieLens)}
+Le système repose sur une adaptation du dataset \textbf{MovieLens 1M}.
+
+\subsection{Mapping des Entités}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|l|}
 \hline
-\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Impact Mathématique \\ \hline
-\texttt{rating} & Source de la satisfaction explicite. \\ \hline
-\texttt{time\_spent} & Source de l'effort comportemental. \\ \hline
-\texttt{completion} & Variable indépendante décorrélée de l'engagement (Principe T01). \\ \hline
+\rowcolor{BrandDark} \color{white} MovieLens & \rowcolor{BrandDark} \color{white} Zenith Learn & \rowcolor{BrandDark} \color{white} Rôle IA \\ \hline
+User ID & Learner ID & Identifiant entrepreneur \\ \hline
+Movie ID & Course ID & Unité de formation \\ \hline
+Rating (1-5) & Engagement Explicite & Source de $R_{norm}$ \\ \hline
 \end{tabular}
+\end{table}
+
+\subsection{Schéma du Dataset (T01)}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|p{7cm}|}
+\hline
+\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Impact Mathématique \\ \hline
+\texttt{rating} & Int & Source de la satisfaction consciente. \\ \hline
+\texttt{time\_spent} & Float & Source de $T_{acc}$ pour la fonction $\Psi$. \\ \hline
+\texttt{completion} & Float & Variable indépendante décorrélée (Principe T01). \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Conclusion}
+En séparant strictement l'engagement et la complétion, et en saturant mathématiquement le temps passé, nous neutralisons la dépendance au "temps de cerveau disponible" pour valoriser la pertinence réelle.
 
 \end{document}

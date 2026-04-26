@@ -10,6 +10,7 @@
 
 % --- DESIGN ---
 \usepackage{xcolor}
+\usepackage{colortbl}
 \definecolor{BrandPrimary}{HTML}{0D9488}
 \definecolor{BrandDark}{HTML}{111827}
 
@@ -29,39 +30,47 @@
     \vspace{0.3cm}
     {\Huge \bfseries \color{white} ZENITH LEARN} \\
     \vspace{0.2cm}
-    {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 04 (V2 - Strict Math)} \\
+    {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 04} \\
     \vspace{0.3cm}
 \end{tcolorbox}
 
-\section{Modélisation de l'Indice de Potentiel ($SPI$)}
-Le TWIST 04 introduit la décorrélation entre complétion et action. Mathématiquement, nous passons d'une fonction linéaire simple à un modèle de pondération par "rupture de domaine".
+\section{Analyse sémantique : La Décorrélation}
+Le \textbf{TWIST 04} révèle que \textit{"completion et passage à l'action entrepreneuriale ne sont pas corrélés."}. Cela impose d'arrêter d'utiliser les signaux académiques comme indicateurs uniques de succès.
 
-\subsection{La Formule du Success Potential Index}
-Le score de potentiel entrepreneurial ($SPI$) est la somme pondérée des vecteurs d'action et des vecteurs académiques.
+\section{Modélisation de l'Indice de Potentiel ($SPI$)}
+Mathématiquement, le système passe d'un modèle linéaire à un modèle de pondération par \textbf{Rupture de Domaine}.
+
+\subsection{Formule du Success Potential Index}
 \begin{equation}
-SPI(u) = \underbrace{w_A \cdot \frac{A_u}{A_{max}} + w_B \cdot B_u}_{\text{Domaine Action}} + \underbrace{w_E \cdot S_E + w_C \cdot S_C^{adj}}_{\text{Domaine Académique}}
+SPI(u) = (w_{act} \cdot \bar{A_u} + w_{bus} \cdot B_u) + (w_{acad} \cdot [S_E + S_C^{adj}])
 \end{equation}
 
-\subsection{Explication détaillée des termes}
+\subsection{Détail et Justification mathématique des termes}
 \begin{itemize}
-    \item \textbf{$w_A$ (Poids de l'Action Terrain) :} Fixé à 0.3. Il sanctionne ou récompense la mise en pratique.
-    \item \textbf{$A_u$ (Somme des actions terrain accomplies) :} Variable discrète (nombre d'actions valides).
-    \item \textbf{$A_{max}$ (Seuil de référence) :} Fixé à 5. Indique qu'au-delà de 5 actions terrain, le score sature pour ce terme (évite le biais de quantité).
-    \item \textbf{$w_B$ (Poids du Lancement d'Entreprise) :} Fixé à 0.4. C'est le \textbf{terme dominant} de l'équation. Le lancement d'une entreprise est le signal de succès ultime.
-    \item \textbf{$B_u$ (Variable binaire) :} 1 si entreprise lancée, 0 sinon.
-    \item \textbf{$w_E$ (Engagement) et $w_C$ (Complétion) :} Fixés à 0.15 chacun. Ils représentent le "Audit de Soutien". 
-    \begin{itemize}
-        \item \textbf{Concrètement :} Même si un utilisateur a 100\% en académique ($S_C^{adj}=1, S_E=1$), son score global sans action sera plafonné à $0.15 + 0.15 = 0.30$. 
-        \item À l'inverse, un utilisateur avec 20\% académique mais une entreprise lancée aura $SPI > 0.40$.
-    \end{itemize}
+    \item \textbf{$\bar{A_u}$ (Domaine Action) :} Moyenne normalisée des actions terrain accomplies. 
+    \item \textbf{$B_u$ (Signal de Lancement) :} Variable binaire (0 ou 1). 
+    \item \textbf{$w_{act}=0.3$ et $w_{bus}=0.4$ (Poids du Réel) :} Ensemble, ils pèsent \textbf{70\%} du score de potentiel. Pourquoi une telle prédominance ? Parce que le TWIST 04 prouve que seul l'acte réel fait l'entrepreneur. Le reste n'est que préparation.
+    \item \textbf{$w_{acad}=0.15$ (Poids de l'Académie) :} Les signaux de complétion et d'engagement ne pèsent plus que \textbf{30\%}. Ils deviennent mathématiquement un \textit{support} et non le moteur du score. 
 \end{itemize}
 
-\section{Impact Dataset}
-\begin{tabular}{|l|p{10cm}|}
+\section{Nouvelle Structure du Dataset (Spécification T04)}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|p{7cm}|}
 \hline
-\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Transformation \\ \hline
-\texttt{action\_completed} & Devient le numérateur de l'indice terrain. \\ \hline
-\texttt{business\_launched} & Devient l'activateur du terme dominant ($w_B$). \\ \hline
+\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Rôle T04 \\ \hline
+\texttt{action\_completed} & Bool & Activation du signal terrain. \\ \hline
+\texttt{business\_launched} & Bool & Terme majeur du succès ($w_{bus}$). \\ \hline
 \end{tabular}
+\end{table}
+
+\section{Impact sur les acquis précédents}
+\begin{itemize}
+    \item \textbf{Destruction de la Hiérarchie T01/T03} : Les scores académiques (redressés ou non) perdent leur statut d'indicateur principal. On ne peut plus être classé "Top Learner" uniquement avec des notes de 5/5 et 100\% de complétion.
+    \item \textbf{Rééquilibrage T02} : Sans nudges, le signal d'action devient l'unique "preuve de vie" fiable de l'entrepreneur.
+\end{itemize}
+
+\section{Conclusion}
+Le TWIST 04 transforme Zenith Learn en une plateforme de \textit{performance réelle}. L'IA est désintéressée par le "Spectacle des notes" pour se focaliser sur l'impact matériel.
 
 \end{document}

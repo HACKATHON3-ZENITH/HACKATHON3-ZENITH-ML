@@ -8,8 +8,9 @@
 \usepackage{geometry}
 \geometry{top=2cm, bottom=2.5cm, left=2cm, right=2cm}
 
-% --- DESIGN & COULEURS ---
+% --- DESIGN ---
 \usepackage{xcolor}
+\usepackage{colortbl}
 \definecolor{BrandPrimary}{HTML}{0D9488}
 \definecolor{BrandDark}{HTML}{111827}
 
@@ -29,42 +30,53 @@
     \vspace{0.3cm}
     {\Huge \bfseries \color{white} ZENITH LEARN} \\
     \vspace{0.2cm}
-    {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 03 (V2 - Strict Math)} \\
+    {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 03} \\
     \vspace{0.3cm}
 \end{tcolorbox}
 
-\section{La Loi de Normalisation de la Complétion}
-Le TWIST 03 postule que les cours les plus complétés sont les plus courts. Mathématiquement, nous devons neutraliser le biais de durée par une transformation non-linéaire.
+\section{Analyse sémantique : "Court vs Utile"}
+Le \textbf{TWIST 03} dénonce le biais de complétion : \textit{"Les cours les plus completés sont les plus courts, pas les plus utiles."}. L'IA doit neutraliser ce biais mécanique pour ne pas enterrer les cours de fond.
 
-\subsection{Obtention de la Formule d'Ajustement}
-Nous cherchons une fonction $\theta(D)$ telle que le score de complétion ajusté $S_C^{adj}$ récompense proportionnellement l'effort consenti par rapport à la difficulté temporelle.
+\section{Modélisation Mathématique du Redressement}
+Nous cherchons une fonction de mérite qui valorise l'effort consenti en fonction de la durée du contenu.
+
+\subsection{Formule de la Complétion Ajustée ($S_C^{adj}$)}
 \begin{equation}
-S_C^{adj} = C_{raw} \cdot \frac{\ln(1 + D)}{\ln(1 + D_{med})}
+S_C^{adj} = C_{raw} \cdot \Theta(D)
 \end{equation}
 
-\subsection{Explication concrète des termes}
+\subsection{Détail de la Fonction de Pondération $\Theta(D)$}
+\begin{equation}
+\Theta(D) = \frac{\ln(1 + D)}{\ln(1 + D_{med})}
+\end{equation}
+
 \begin{itemize}
-    \item \textbf{$C_{raw}$ (Taux de complétion brut) :} Valeur entre 0 et 1. C'est le signal direct de parcours.
-    \item \textbf{$D$ (Durée théorique du cours) :} Exprimée en heures.
-    \item \textbf{$\ln(1 + D)$ (Logarithme népérien de la durée) :} 
-    \begin{itemize}
-        \item Pourquoi le $\ln$ ? Parce que l'effort ressenti pour passer d'une formation de 1h à 5h est bien plus important que pour passer de 30h à 34h. Le logarithme modélise l'\textbf{utilité marginale décroissante} et la difficulté logarithmique de l'apprentissage de longue durée. 
-        \item Pourquoi $+1$ ? Pour éviter une valeur de 0 quand $D=1$ et assurer que la fonction est toujours positive et stable pour les cours très courts.
-    \end{itemize}
-    \item \textbf{$D_{med}$ (Durée médiane du catalogue) :} Agit comme un \textbf{point pivot de neutralité}. 
-    \begin{itemize}
-        \item Si $D = D_{med}$, le multiplicateur vaut 1. Le cours est jugé "standard".
-        \item Si $D > D_{med}$, le multiplicateur est $>1$. On sur-pondère la complétion car l'effort est exceptionnel.
-        \item Si $D < D_{med}$, le multiplicateur est $<1$. On sous-pondère pour éviter le spam de petits cours.
-    \end{itemize}
+    \item \textbf{$C_{raw}$ (Taux brut) :} Valeur de complétion entre 0 et 1.
+    \item \textbf{$D$ (Durée théorique) :} Exprimée en heures.
+    \item \textbf{Pourquoi le Logarithme ($\ln$) ?}
+    Le logarithme modélise la \textbf{difficulté cognitive croissante}. Passer d'un cours de 1h à 5h demande un saut d'engagement bien plus grand que de passer de 30h à 34h. Le $\ln$ permet de compenser ce biais de complétion naturelle sans pour autant sur-récompenser de manière infinie les cours trop longs (rendement décroissant).
+    \item \textbf{Le terme $+1$ :} Assure que le terme $\ln(1+D)$ ne soit jamais nul pour les cours très courts ($D < 1h$) et reste stable.
+    \item \textbf{$D_{med}$ (Durée Médiane) :} C'est le point pivot. Si un cours a la durée médiane du catalogue, $\Theta(D) = 1$. L'IA ne change rien. S'il est plus long, il reçoit un "Bonus de Mérite". S'il est plus court, il reçoit un "Malus de Facilité".
 \end{itemize}
 
-\section{Impact sur le Dataset}
-\begin{tabular}{|l|p{10cm}|}
+\section{Nouvelle Structure du Dataset (Spécification T03)}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|p{7cm}|}
 \hline
-\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Transformation Mathématique \\ \hline
-\texttt{duree\_heures} & Utilisée comme base logarithmique de redressement. \\ \hline
-\texttt{adj\_completion} & Résultat de $C_{raw} \cdot \text{ScalingFactor}$. Devient la variable de référence pour le succès académique. \\ \hline
+\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Rôle Algorithmique \\ \hline
+\texttt{duree\_prevue} & Float & Base logarithmique du redressement. \\ \hline
+\rowcolor{BrandPrimary!20} \texttt{adj\_completion} & Float & Signal de succès académique "Nettoyé". \\ \hline
 \end{tabular}
+\end{table}
+
+\section{Impact sur les acquis précédents}
+\begin{itemize}
+    \item \textbf{Évolution du TWIST 01} : La complétion académique n'est plus une valeur brute mais dynamique. Le 100\% d'un cours court pèse désormais moins que le 100\% d'un cours long.
+    \item \textbf{Consolidation du TWIST 02} : En neutralisant le biais de facilité, on décourage le comportement de "chasse aux badges" faciles.
+\end{itemize}
+
+\section{Conclusion}
+Le TWIST 03 transforme la complétion d'une simple mesure de parcours en une mesure de \textbf{Poids Pédagogique}, indispensable pour valoriser les formations entrepreneuriales structurantes.
 
 \end{document}

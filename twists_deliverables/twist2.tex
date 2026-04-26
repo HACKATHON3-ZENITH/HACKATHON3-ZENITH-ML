@@ -10,8 +10,10 @@
 
 % --- DESIGN ---
 \usepackage{xcolor}
+\usepackage{colortbl}
 \definecolor{BrandPrimary}{HTML}{0D9488}
 \definecolor{BrandDark}{HTML}{111827}
+\definecolor{BrandWarning}{HTML}{EF4444}
 
 \usepackage{tcolorbox}
 \tcbuselibrary{skins, breakable}
@@ -29,41 +31,49 @@
     \vspace{0.3cm}
     {\Huge \bfseries \color{white} ZENITH LEARN} \\
     \vspace{0.2cm}
-    {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 02 (V2 - Strict Math)} \\
+    {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 02} \\
     \vspace{0.3cm}
 \end{tcolorbox}
 
-\section{Modélisation de l'Engagement Intrinsèque}
-Le TWIST 02 interdit les pushs et les badges. Mathématiquement, cela impose une \textbf{neutralisation des variables de rétention externes}.
+\begin{tcolorbox}[colback=BrandWarning!5, colframe=BrandWarning!20, arc=5pt]
+    \textbf{Contrainte :} Notifications push, emails de relance, badges et "streaks" interdits.
+\end{tcolorbox}
 
-\subsection{Formule de la Scorie d'Inertie ($I$)}
-Nous mesurons la capacité d'un cours à attirer l'utilisateur sans aide extérieure. Le score d'engagement intrinsèque ($S_E^{int}$) est épuré des biais de relance.
+\section{Ce que l'on attend réellement de nous}
+Le TWIST 02 teste la puissance intrinsèque de l'IA. Sans stimuli externes, l'apprenant ne revient que si le contenu lui est utile. L'attente est une \textbf{Preuve de Valeur} par la rétention organique.
+
+\section{Modélisation de l'Engagement Intrinsèque}
+Mathématiquement, le système doit rejeter toute "scorie" de manipulation.
+
+\subsection{Formule de l'Engagement Épuré ($S_E^{int}$)}
 \begin{equation}
-S_E^{int}(u, c) = S_E(u, c) \cdot \prod_{k \in \text{Stimuli}} (1 - \sigma_k)
+S_E^{int}(u, c) = S_E(u, c) \cdot \Gamma_{sobriety}
 \end{equation}
 
 \subsection{Détail des termes}
 \begin{itemize}
-    \item \textbf{$S_E(u, c)$ :} Score d'engagement de base (T01).
-    \item \textbf{$\sigma_k$ (Facteur de contamination externe) :} Coefficient binaire. $\sigma_k = 1$ si l'interaction a été déclenchée par un stimuli $k$ (Push, Email, Badge).
-    \item \textbf{$\prod$ (Produit de neutralisation) :} Si un stimuli a été utilisé pour ramener l'utilisateur, l'engagement est mathématiquement ramené à 0 pour ce qui concerne l'évaluation de la \textit{qualité intrinsèque} du cours.
+    \item \textbf{$S_E(u, c)$ :} Score d'engagement défini au TWIST 01.
+    \item \textbf{$\Gamma_{sobriety} \in [0, 1]$ (Coefficient de Sobriété) :} 
+    Il s'agit d'un terme de "filtrage d'origine". 
+    \begin{itemize}
+        \item Si la session de l'utilisateur a été déclenchée par un \textbf{stimulus interdit} (push, email), $\Gamma = 0$ pour tous les calculs de recommandation future liés à ce cours. On considère que l'interaction n'est pas "propre".
+        \item Si la session est \textbf{organique}, $\Gamma = 1$.
+    \end{itemize}
+    \item \textbf{Impact Mathematiaue :} En multipliant par 0 les sessions forcées, nous forçons l'algorithme à n'apprendre qu'à partir des sessions volontaires. L'IA ne peut plus "tricher" en comptant sur des notifications.
 \end{itemize}
 
-\section{Impact sur le Dataset}
-Pour être conforme au TWIST 02, nous introduisons une colonne d'\textbf{Origine de Session}.
-
+\section{Structure du Dataset (Audit Sobriété)}
 \begin{table}[h!]
 \centering
 \begin{tabular}{|l|l|p{7cm}|}
 \hline
 \rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Rôle T02 \\ \hline
-\texttt{session\_trigger} & Enum & $[Organic, Push, Email, Badge]$. \\ \hline
-\texttt{intrinsic\_weight} & Binary & 1 si Organic, 0 sinon. \\ \hline
+\texttt{session\_trigger} & Enum & Origine du trafic $[Organic, Push, Email]$. \\ \hline
+\texttt{intrinsic\_weight} & Binary & Utilisé pour définir $\Gamma_{sobriety}$. \\ \hline
 \end{tabular}
-\caption{Variables de conformité éthique T02.}
 \end{table}
 
 \section{Conclusion}
-En multipliant par 0 toute interaction "induite", l'algorithme Zenith Learn ne valorise que ce qui est choisi librement par l'entrepreneur. C'est la garantie mathématique d'une IA sobre et non-addictive.
+Le TWIST 02 assure que l'IA ne devient pas une "machine à addiction", mais reste un outil de croissance entrepreneurial guidé par le choix souverain de l'apprenant.
 
 \end{document}
