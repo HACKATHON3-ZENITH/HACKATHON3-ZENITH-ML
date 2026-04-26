@@ -274,3 +274,56 @@ class RecommendationExplainer:
             "content_similarity": round(content_sim, 4),
             "explanation_text": "\n".join(parts),
         }
+
+    # ------------------------------------------------------------------
+    # TWIST 07 — Explication du potentiel de réussite (Bailleur / Admin)
+    # ------------------------------------------------------------------
+
+    def explain_learner_success(self, learner_id: str) -> Dict:
+        """
+        TWIST 07 : Explique pourquoi un apprenant a un haut potentiel de réussite.
+        Réutilise la logique d'explication du TWIST 06.
+        """
+        rec = self.recommender
+        if not rec._fitted:
+            raise RuntimeError("Le modèle n'a pas été entraîné.")
+
+        # Récupérer les données de l'apprenant (on simule le calcul du score ici pour l'explication)
+        user_data = rec.interactions_df[rec.interactions_df["learner_id"] == learner_id]
+        if user_data.empty:
+             return {"error": "Aucune donnée d'interaction pour cet apprenant."}
+             
+        segment = rec.get_user_segment(learner_id)
+        action_count = user_data["action_completed"].sum()
+        business_launched = user_data["business_launched"].any()
+        avg_engagement = user_data["engagement_score"].mean()
+
+        parts = [
+            f"👤 Apprenant : {learner_id}",
+            f"Segment : {segment}",
+            f"",
+            f"Facteurs de succès identifiés :",
+        ]
+
+        if business_launched:
+            parts.append("✅ ACTION MAJEURE : Lancement d'entreprise détecté.")
+        
+        if action_count > 0:
+            parts.append(f"✅ ACTION TERRAIN : {action_count} actions concrètes réalisées.")
+            
+        if avg_engagement >= 0.7:
+            parts.append(f"📈 ENGAGEMENT : Très fort investissement dans les cours ({avg_engagement:.2f}).")
+        
+        if segment == "entrepreneur_actif":
+            parts.append("🚀 PROFIL : Classé comme 'Entrepreneur Actif' par le système.")
+
+        return {
+            "learner_id": learner_id,
+            "segment": segment,
+            "metrics": {
+                "action_count": int(action_count),
+                "business_launched": bool(business_launched),
+                "avg_engagement": round(avg_engagement, 2)
+            },
+            "explanation_text": "\n".join(parts)
+        }

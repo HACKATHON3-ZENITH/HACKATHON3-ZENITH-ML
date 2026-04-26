@@ -276,6 +276,41 @@ def get_segment(learner_id: str):
     return SegmentResponse(learner_id=learner_id, segment=segment)
 
 
+# ── T07 : Classement du Potentiel de Réussite ────────────────────────
+
+class LearnerRankingEntry(BaseModel):
+    learner_id: str
+    score: float
+    metrics: Dict
+    explanation: Optional[Dict] = None
+
+@app.get(
+    "/api/v1/rankings/top-learners",
+    response_model=List[LearnerRankingEntry],
+)
+def get_top_learners(
+    top_n: int = Query(default=100, ge=1, le=1000),
+    include_explanations: bool = Query(default=True),
+):
+    """
+    TWIST 07 : Retourne les top-N apprenants les plus susceptibles de réussir.
+    Inclut des explications basées sur les variables réelles (Engagement, Action, Segment).
+    """
+    if recommender is None or explainer is None:
+        raise HTTPException(503, "Modèle non chargé.")
+
+    rankings = recommender.rank_learners_by_success_potential(top_n=top_n)
+    
+    response = []
+    for entry in rankings:
+        rank_entry = LearnerRankingEntry(**entry)
+        if include_explanations:
+            rank_entry.explanation = explainer.explain_learner_success(entry["learner_id"])
+        response.append(rank_entry)
+        
+    return response
+
+
 
 # ──────────────────────────────────────────────────────────────────────
 # TWIST 02 — AUCUN mécanisme de rétention artificielle

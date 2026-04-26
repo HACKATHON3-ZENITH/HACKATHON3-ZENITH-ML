@@ -462,3 +462,59 @@ class ZenithRecommender:
     def get_user_segment(self, learner_id: str) -> UserSegment:
         """Retourne le segment d'un utilisateur."""
         return self.user_segments.get(learner_id, "explorateur")
+
+    # ==================================================================
+    # TWIST 07 : Classement du Potentiel de Réussite
+    # ==================================================================
+
+    def rank_learners_by_success_potential(self, top_n: int = 100) -> List[Dict]:
+        """
+        TWIST 07 : Identifie les top-N apprenants les plus susceptibles de réussir.
+        Le score de potentiel est distinct du score de recommandation de cours.
+        """
+        if not self._fitted:
+            raise RuntimeError("Le modèle n'a pas été entraîné.")
+
+        rankings = []
+        for uid in self.user_ids:
+            user_data = self.interactions_df[self.interactions_df["learner_id"] == uid]
+            segment = self.get_user_segment(uid)
+            
+            # 1. Signal d'action (TWIST 04)
+            action_count = user_data["action_completed"].sum()
+            business_launched = user_data["business_launched"].any()
+            
+            # 2. Engagement moyen (TWIST 01)
+            avg_engagement = user_data["engagement_score"].mean() if not user_data.empty else 0.0
+            
+            # 3. Complétion ajustée (TWIST 03)
+            avg_completion = user_data["adjusted_completion"].mean() if not user_data.empty else 0.0
+            
+            # 4. Diversité des compétences (Nombre de catégories uniques explorées)
+            categories_count = user_data["course_id"].nunique()
+            
+            # Calcul du Success Potential Score
+            # Poids : Business (0.4) + Actions (0.3) + Engagement (0.15) + Segment (0.15)
+            score = (
+                (0.40 if business_launched else 0.0) +
+                (0.30 * min(action_count / 5.0, 1.0)) +
+                (0.15 * avg_engagement) +
+                (0.15 * (1.0 if segment == "entrepreneur_actif" else 0.4))
+            )
+            
+            rankings.append({
+                "learner_id": uid,
+                "score": round(score, 4),
+                "metrics": {
+                    "action_count": int(action_count),
+                    "business_launched": bool(business_launched),
+                    "avg_engagement": round(avg_engagement, 4),
+                    "avg_completion": round(avg_completion, 4),
+                    "categories_explored": int(categories_count),
+                    "segment": segment
+                }
+            })
+            
+        # Trier par score décroissant
+        rankings.sort(key=lambda x: x["score"], reverse=True)
+        return rankings[:top_n]
