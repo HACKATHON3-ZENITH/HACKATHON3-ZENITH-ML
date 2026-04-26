@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: zenith-ml-engine
+    env: docker
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: DATA_DIR
+        value: /data/docsML
