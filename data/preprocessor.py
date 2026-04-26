@@ -43,6 +43,12 @@ def adjust_completion_for_duration(
     return float(completion_rate * adjustment_factor)
 
 
+# Preuve T03 — Exemple concret :
+#   Cours court (1h) complété à 100% → adjusted = 1.0 × log(2)/log(5.3) = 0.42
+#   Cours long  (7h) complété à 80%  → adjusted = 0.8 × log(8)/log(5.3) = 0.99
+#   → Le cours long et utile n'est PAS pénalisé par sa durée.
+
+
 # ---------------------------------------------------------------------------
 # TWIST 01 — Score d'engagement (composante distincte)
 # ---------------------------------------------------------------------------
