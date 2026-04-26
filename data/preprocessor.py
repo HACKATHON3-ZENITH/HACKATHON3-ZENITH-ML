@@ -122,6 +122,12 @@ def preprocess_interactions(
         merged["entreprise_lancee"].str.strip().str.lower() == "oui"
     ).astype(int)
 
+    # TWIST 04 — Vérification : ces trois colonnes ne sont JAMAIS fusionnées.
+    # completion_rate, action_completed et business_launched coexistent
+    # comme features indépendantes dans le DataFrame.
+    assert "action_completed" in merged.columns, "T04: action_completed manquant"
+    assert "business_launched" in merged.columns, "T04: business_launched manquant"
+
     # TWIST 03 : complétion ajustée par la durée
     merged["adjusted_completion"] = merged.apply(
         lambda r: adjust_completion_for_duration(
