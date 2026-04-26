@@ -38,19 +38,31 @@
 \end{tcolorbox}
 
 \section{Analyse sémantique : Le Droit de Comprendre}
-Le \textbf{TWIST 06} pose un problème de gouvernance : \textit{"Les créateurs veulent comprendre pourquoi leurs cours sont ou non recommandés."}
+Le \textbf{TWIST 06} pose un problème de gouvernance : \textit{``Les créateurs veulent comprendre pourquoi leurs cours sont ou non recommandés.''}
 
-Jusqu'ici, l'IA fonctionnait comme un arbitre silencieux. Le twist impose de briser l'effet "Boîte Noire". Une recommandation sans justification est une \textbf{dépendance destructrice} car elle empêche le créateur de contenu d'améliorer sa pédagogie par manque de feedback actionnable.
+Jusqu'ici, l'IA fonctionnait comme un arbitre silencieux. Le twist impose de briser l'effet ``Boîte Noire''. Une recommandation sans justification est une \textbf{dépendance destructrice} car elle empêche le créateur de contenu d'améliorer sa pédagogie par manque de feedback actionnable.
+
+Ce constat n'est pas anodin : un créateur qui ne comprend pas pourquoi son cours est ignoré est condamné à répéter les mêmes erreurs. Il peut, par exemple, continuer à produire des contenus trop longs, trop denses ou mal ciblés, sans jamais recevoir le signal correctif qui lui permettrait de s'améliorer. L'opacité de l'algorithme devient ainsi un obstacle à la croissance pédagogique. Le TWIST 06 répond à cette impasse en dotant le système d'une capacité d'auto-explication structurée.
 
 \section{Ce que l'on attend réellement de nous}
-Nous devons passer d'une IA \textit{prédictive} à une IA \textit{explicative}. 
+Nous devons passer d'une IA \textit{prédictive} à une IA \textit{explicative}.
 \begin{enumerate}
     \item \textbf{Index de Confiance} : Chaque recommandation doit être associée à un niveau de certitude.
     \item \textbf{Décomposition des gisements de valeur} : Le créateur doit voir quels termes de la formule (T01-T05) tirent son cours vers le haut ou vers le bas.
 \end{enumerate}
 
+Concrètement, passer d'une IA prédictive à une IA explicative signifie que le système ne se contente plus de produire une sortie binaire (recommandé / non recommandé), mais qu'il articule le \textit{pourquoi} de cette décision en termes compréhensibles par un humain non-expert en mathématiques. C'est le principe fondateur de l'\textbf{IA explicable} (XAI, \textit{Explainable Artificial Intelligence}), un champ de recherche en plein essor qui vise précisément à réconcilier la performance des modèles avec leur lisibilité.
+
 \section{Modélisation Mathématique de l'Explicabilité}
 Pour répondre à cette exigence, nous modélisons la \textbf{Contribution Locale} de chaque feature à la décision finale.
+
+\subsection{Genèse de la formule : pourquoi décomposer un score en contributions ?}
+
+Pour comprendre l'origine de la formule qui suit, il faut partir d'un constat simple : le score final $S$ d'un cours est une somme pondérée de plusieurs caractéristiques (features). Chaque feature contribue positivement ou négativement au score final. La question n'est donc pas \textit{``quel est le score de ce cours ?''} mais \textit{``quelle part du score est due à chaque caractéristique ?''}.
+
+L'idée directrice est l'analogie du \textbf{thermomètre décomposé} : imaginez un thermomètre qui, au lieu d'afficher une température globale, vous indique séparément la contribution du soleil, du vent, de l'humidité et du chauffage intérieur. C'est exactement ce que fait la décomposition en contributions $C_i$ : elle ventile le score global en parts imputables à chaque facteur, permettant au créateur de savoir précisément quelle caractéristique de son cours l'aide ou le pénalise.
+
+Pour rendre cette décomposition \textbf{équitable et centrée}, on ne compare pas la valeur brute d'une feature à zéro (ce qui serait arbitraire), mais à sa valeur moyenne dans le catalogue. Ainsi, si tous les cours ont un taux de complétion moyen de 60\%, un cours à 75\% sera perçu comme positivement distinctif, tandis qu'un cours à 45\% sera perçu comme sous-performant. C'est la logique de l'écart à la norme.
 
 \subsection{Formule de la Décomposition de Score ($\Delta_{score}$)}
 Le score final $S$ est une somme de contributions $C_i$. Nous introduisons le vecteur d'explication $\vec{E}$ :
@@ -59,12 +71,26 @@ Le score final $S$ est une somme de contributions $C_i$. Nous introduisons le ve
 \end{equation}
 
 \subsection{Détail et Justification des termes}
+
+\textbf{Lecture de la formule.} Le vecteur $\vec{E}(c)$ est une liste ordonnée de $n$ valeurs numériques, une par caractéristique (feature) prise en compte dans le modèle. Chaque valeur $C_i$ représente la \textit{contribution nette} de la feature $i$ au score du cours $c$. Ce vecteur est le ``rapport d'explication'' remis au créateur : il peut être affiché sous forme de graphique en barres, où les barres vertes représentent les contributions positives et les barres rouges les contributions négatives.
+
 \begin{itemize}
-    \item \textbf{$F_{i,c}$ (Feature active) :} La valeur brute du cours $c$ sur la caractéristique $i$.
-    \item \textbf{$\bar{F}_i$ (Moyenne de référence) :} La valeur moyenne de tous les cours du catalogue sur cette caractéristique.
-    \item \textbf{$(F_{i,c} - \bar{F}_i)$ (Écart à la norme) :} Ce terme est crucial. Il indique si le cours est "mieux" ou "moins bien" que la moyenne. Un créateur voit ainsi que son cours est pénalisé s'il est en dessous de la moyenne de complétion ajustée (T03).
-    \item \textbf{$w_{i, seg}$ (Poids segmenté) :} Le poids défini au TWIST 05. Il explique au créateur que l'IA le recommande parce qu'il s'adresse bien au segment cible (ex: Actifs).
+    \item \textbf{$F_{i,c}$ (Feature active) :} La valeur brute du cours $c$ sur la caractéristique $i$. Par exemple, si $i$ désigne le taux de complétion ajusté (introduit au TWIST 03), alors $F_{i,c}$ est le taux de complétion réel de ce cours précis. C'est le point de départ de l'évaluation : ce que le cours vaut objectivement sur cette dimension.
+
+    \item \textbf{$\bar{F}_i$ (Moyenne de référence) :} La valeur moyenne de tous les cours du catalogue sur cette caractéristique. Ce terme est fondamental car il définit le \textit{point de référence neutre} du système. Un cours qui atteint exactement la moyenne n'apporte rien de distinctif sur cette dimension : sa contribution sera nulle. Ce choix de la moyenne comme référence est délibéré — il évite que des features absolument élevées mais uniformes (tout le monde a un bon score d'engagement, par exemple) gonflent artificiellement toutes les contributions.
+
+    \item \textbf{$(F_{i,c} - \bar{F}_i)$ (Écart à la norme) :} Ce terme est le cœur de la formule. Il capture l'avantage comparatif ou le déficit relatif du cours sur la dimension $i$. Un écart positif signifie que le cours se distingue favorablement de la concurrence ; un écart négatif signifie qu'il est en retard sur cette dimension. En pratique, un créateur voit ainsi que son cours est pénalisé s'il est en dessous de la moyenne de complétion ajustée (T03), ou qu'il est valorisé s'il présente une forte densité d'engagement (T01).
+
+    \item \textbf{$w_{i, seg}$ (Poids segmenté) :} Le poids défini au TWIST 05, spécifique au segment d'apprenants ciblé. Ce terme agit comme un \textbf{amplificateur contextuel} : il indique au créateur que l'IA le recommande non seulement parce que son cours est bon en absolu, mais surtout parce qu'il répond précisément aux besoins d'un segment identifié. Un poids élevé sur la feature ``action terrain'' pour le segment ``Acteurs'' expliquera par exemple que le cours est fortement recommandé aux 20\% d'apprenants qui cherchent à passer à l'action rapidement.
 \end{itemize}
+
+\subsection{Propriété mathématique de cohérence}
+
+Une propriété importante de cette décomposition est que la somme des contributions doit être cohérente avec le score global :
+\begin{equation}
+S(c) = \bar{S} + \sum_{i=1}^{n} C_i
+\end{equation}
+où $\bar{S}$ est le score moyen du catalogue. Cette équation garantit que l'explication est \textbf{fidèle} au modèle : le score d'un cours est intégralement expliqué par la somme des contributions, aucune valeur ``fantôme'' ne subsiste. C'est ce qu'on appelle en littérature de XAI la \textbf{propriété d'additivité locale}, qui est aussi le fondement théorique des valeurs SHAP (\textit{SHapley Additive exPlanations}).
 
 \section{Nouvelle Structure du Dataset (Audit Logs)}
 Le système génère désormais une table d'audit pour les créateurs.
@@ -73,20 +99,22 @@ Le système génère désormais une table d'audit pour les créateurs.
 \centering
 \begin{tabular}{|l|l|p{7cm}|}
 \hline
-\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Rôle T06 \\ \hline
+\rowcolor{BrandDark} \color{white} Colonne & \color{white} Type & \color{white} Rôle T06 \\ \hline
 \texttt{confidence\_index} & Float & Probabilité de succès de la recommandation ($[0,1]$). \\ \hline
 \texttt{shap\_values} & JSON/Vector & Stockage des contributions $C_i$ pour affichage frontend. \\ \hline
 \texttt{audit\_timestamp} & Date & Horodatage de la décision pour traçabilité. \\ \hline
 \end{tabular}
 \end{table}
 
+La colonne \texttt{shap\_values} mérite une attention particulière : elle stocke l'intégralité du vecteur $\vec{E}(c)$ sous forme de JSON, ce qui permet au frontend de construire dynamiquement un graphique d'explication personnalisé pour chaque cours. Le \texttt{confidence\_index} quant à lui est une métrique dérivée de la stabilité du modèle : un cours dont le score fluctue beaucoup selon les segments ou les périodes aura un indice de confiance faible, signalant au créateur que la recommandation est contextuelle et potentiellement fragile.
+
 \section{Impact sur les acquis précédents}
 \begin{itemize}
-    \item \textbf{Audit des TWIST 01-04} : L'IA doit être capable de dire : "Je ne recommande pas ce cours car son $S_E$ est bon mais son $S_C^{adj}$ (T03) est trop faible par rapport à la durée $D$."
-    \item \textbf{Clarification du TWIST 05} : L'explication révèle au créateur : "Votre cours est un succès chez les 80\% (Explorateurs) mais échoue chez les 20\% (Acteurs)."
+    \item \textbf{Audit des TWIST 01-04} : L'IA doit être capable de dire : ``Je ne recommande pas ce cours car son $S_E$ est bon mais son $S_C^{adj}$ (T03) est trop faible par rapport à la durée $D$.'' Cette phrase, formulée en langage naturel pour le créateur, est en réalité la traduction directe d'un vecteur $\vec{E}$ où la contribution de la feature complétion est fortement négative.
+    \item \textbf{Clarification du TWIST 05} : L'explication révèle au créateur : ``Votre cours est un succès chez les 80\% (Explorateurs) mais échoue chez les 20\% (Acteurs).'' Cela se traduit mathématiquement par deux vecteurs $\vec{E}$ calculés avec des poids $w_{i,seg}$ différents : l'un pour le segment Explorateurs, l'autre pour le segment Acteurs. La comparaison des deux vecteurs donne une vision claire de l'adéquation (ou du désalignement) du cours avec chaque profil.
 \end{itemize}
 
 \section{Conclusion}
-Le TWIST 06 transforme Zenith Learn en un écosystème ouvert. En remplaçant l'opacité par la \textit{Transparence Mathématique}, nous redonnons le pouvoir aux créateurs de devenir, eux aussi, de meilleurs entrepreneurs de la connaissance.
+Le TWIST 06 transforme Zenith Learn en un écosystème ouvert. En remplaçant l'opacité par la \textit{Transparence Mathématique}, nous redonnons le pouvoir aux créateurs de devenir, eux aussi, de meilleurs entrepreneurs de la connaissance. Le vecteur d'explication $\vec{E}$ n'est pas une concession cosmétique à l'intelligibilité : c'est un outil de rétroaction pédagogique quantifié, qui transforme chaque décision algorithmique en une opportunité d'apprentissage pour le créateur lui-même.
 
 \end{document}

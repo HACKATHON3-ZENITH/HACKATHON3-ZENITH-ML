@@ -35,22 +35,37 @@
 \end{tcolorbox}
 
 \section{Analyse sémantique : La Décorrélation}
-Le \textbf{TWIST 04} révèle que \textit{"completion et passage à l'action entrepreneuriale ne sont pas corrélés."}. Cela impose d'arrêter d'utiliser les signaux académiques comme indicateurs uniques de succès.
+Le \textbf{TWIST 04} révèle que \textit{``completion et passage à l'action entrepreneuriale ne sont pas corrélés.''} Cela impose d'arrêter d'utiliser les signaux académiques comme indicateurs uniques de succès.
+
+Cette décorrélation, bien que contre-intuitive, est un fait documenté dans les études sur l'entrepreneuriat : les meilleurs entrepreneurs ne sont pas nécessairement les meilleurs étudiants. Un apprenant peut noter 5/5 chaque cours, les compléter à 100\%, et ne jamais lancer quoi que ce soit. À l'inverse, un autre peut avoir des métriques académiques modestes mais avoir déjà ses premiers clients. Le TWIST 04 reconnaît officiellement cette réalité et restructure le modèle autour d'une hiérarchie de preuves.
 
 \section{Modélisation de l'Indice de Potentiel ($SPI$)}
-Mathématiquement, le système passe d'un modèle linéaire à un modèle de pondération par \textbf{Rupture de Domaine}.
+Mathématiquement, le système passe d'un modèle linéaire à un modèle de pondération par \textbf{Rupture de Domaine} : les signaux du monde réel (action, lancement) et les signaux académiques (engagement, complétion) appartiennent à deux catégories de preuve distinctes.
 
 \subsection{Formule du Success Potential Index}
 \begin{equation}
 SPI(u) = (w_{act} \cdot \bar{A_u} + w_{bus} \cdot B_u) + (w_{acad} \cdot [S_E + S_C^{adj}])
 \end{equation}
 
+\subsection{Genèse de la formule : pourquoi cette construction ?}
+
+L'architecture de la formule est délibérément asymétrique. Elle est divisée en deux blocs séparés par un signe d'addition :
+\begin{enumerate}
+    \item \textbf{Le bloc du Réel :} $(w_{act} \cdot \bar{A_u} + w_{bus} \cdot B_u)$ — ce qui s'est passé hors de la plateforme.
+    \item \textbf{Le bloc de l'Académie :} $(w_{acad} \cdot [S_E + S_C^{adj}])$ — ce qui s'est passé sur la plateforme.
+\end{enumerate}
+
+Cette séparation en blocs n'est pas qu'esthétique : elle force conceptuellement le lecteur (et le modèle) à reconnaître que ces deux types de signaux sont \textbf{incommensurables}. On ne peut pas ``compenser'' un manque d'action réelle par un excès de complétion de cours, tout comme on ne peut pas compenser une mauvaise santé par un excellent carnet de rendez-vous médicaux. Les deux comptent, mais dans des registres différents.
+
 \subsection{Détail et Justification mathématique des termes}
 \begin{itemize}
-    \item \textbf{$\bar{A_u}$ (Domaine Action) :} Moyenne normalisée des actions terrain accomplies. 
-    \item \textbf{$B_u$ (Signal de Lancement) :} Variable binaire (0 ou 1). 
-    \item \textbf{$w_{act}=0.3$ et $w_{bus}=0.4$ (Poids du Réel) :} Ensemble, ils pèsent \textbf{70\%} du score de potentiel. Pourquoi une telle prédominance ? Parce que le TWIST 04 prouve que seul l'acte réel fait l'entrepreneur. Le reste n'est que préparation.
-    \item \textbf{$w_{acad}=0.15$ (Poids de l'Académie) :} Les signaux de complétion et d'engagement ne pèsent plus que \textbf{30\%}. Ils deviennent mathématiquement un \textit{support} et non le moteur du score. 
+    \item \textbf{$\bar{A_u}$ (Domaine Action) :} La moyenne normalisée des actions terrain accomplies par l'apprenant $u$. Ces actions sont des comportements mesurables hors plateforme : contacter un partenaire potentiel, réaliser une première vente, valider un prototype auprès de clients. La normalisation assure que ce score est compris entre 0 et 1, compatible avec les autres termes.
+
+    \item \textbf{$B_u$ (Signal de Lancement) :} Une variable binaire qui vaut 1 si l'apprenant a officiellement lancé une entreprise (immatriculation, first revenue, dépôt de statuts), et 0 sinon. Ce signal est intentionnellement binaire car le lancement est un \textbf{événement de rupture}, pas un continuum. On n'est pas ``un peu lancé''.
+
+    \item \textbf{$w_{act} = 0.3$ et $w_{bus} = 0.4$ (Poids du Réel) :} Ensemble, ils pèsent \textbf{70\%} du score de potentiel. Pourquoi une telle prédominance ? Parce que le TWIST 04 prouve que seul l'acte réel fait l'entrepreneur. Le reste n'est que préparation. La pondération plus forte de $w_{bus}$ (0.4 contre 0.3) reflète également la valeur supérieure accordée à l'acte de lancement, irréversible et public, par rapport à l'accumulation d'actions préparatoires, qui peuvent rester dans un état de ``presque prêt'' indéfini.
+
+    \item \textbf{$w_{acad} = 0.15$ (Poids de l'Académie) :} Les signaux de complétion et d'engagement ne pèsent plus que \textbf{30\%}. Attention : $w_{acad}$ est appliqué à la \textit{somme} $S_E + S_C^{adj}$, ce qui signifie que le poids effectif de chaque signal académique individuel est encore plus faible (environ 15\% de 30\% = 4.5\% chacun). Ils deviennent mathématiquement un \textit{support} et non le moteur du score, un signal de contexte qui peut confirmer un bon profil d'action mais ne peut jamais le créer à lui seul.
 \end{itemize}
 
 \section{Nouvelle Structure du Dataset (Spécification T04)}
@@ -59,18 +74,18 @@ SPI(u) = (w_{act} \cdot \bar{A_u} + w_{bus} \cdot B_u) + (w_{acad} \cdot [S_E + 
 \begin{tabular}{|l|l|p{7cm}|}
 \hline
 \rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Rôle T04 \\ \hline
-\texttt{action\_completed} & Bool & Activation du signal terrain. \\ \hline
-\texttt{business\_launched} & Bool & Terme majeur du succès ($w_{bus}$). \\ \hline
+\texttt{action\_completed} & Bool & Activation du signal terrain. Contribue à $\bar{A_u}$. \\ \hline
+\texttt{business\_launched} & Bool & Terme majeur du succès ($w_{bus}$). Déclencheur de $B_u$. \\ \hline
 \end{tabular}
 \end{table}
 
 \section{Impact sur les acquis précédents}
 \begin{itemize}
-    \item \textbf{Destruction de la Hiérarchie T01/T03} : Les scores académiques (redressés ou non) perdent leur statut d'indicateur principal. On ne peut plus être classé "Top Learner" uniquement avec des notes de 5/5 et 100\% de complétion.
-    \item \textbf{Rééquilibrage T02} : Sans nudges, le signal d'action devient l'unique "preuve de vie" fiable de l'entrepreneur.
+    \item \textbf{Destruction de la Hiérarchie T01/T03} : Les scores académiques (redressés ou non) perdent leur statut d'indicateur principal. On ne peut plus être classé ``Top Learner'' uniquement avec des notes de 5/5 et 100\% de complétion. La plateforme sort du paradigme des ``bons élèves'' pour entrer dans celui des ``vrais entrepreneurs''.
+    \item \textbf{Rééquilibrage T02} : Sans nudges, le signal d'action devient l'unique ``preuve de vie'' fiable de l'entrepreneur. Si l'apprenant revient organiquement (T02) ET qu'il agit dans le monde réel (T04), la convergence de ces deux signaux est un indicateur très fort de potentiel authentique.
 \end{itemize}
 
 \section{Conclusion}
-Le TWIST 04 transforme Zenith Learn en une plateforme de \textit{performance réelle}. L'IA est désintéressée par le "Spectacle des notes" pour se focaliser sur l'impact matériel.
+Le TWIST 04 transforme Zenith Learn en une plateforme de \textit{performance réelle}. L'IA est désintéressée par le ``Spectacle des notes'' pour se focaliser sur l'impact matériel. Il établit le $SPI$ comme la grandeur centrale du modèle, que les twists suivants viendront affiner, segmenter, expliquer, et rendre robuste.
 
 \end{document}

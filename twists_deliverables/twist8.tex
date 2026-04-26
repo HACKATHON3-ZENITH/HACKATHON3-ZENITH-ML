@@ -8,7 +8,7 @@
 \usepackage{geometry}
 \geometry{top=2cm, bottom=2.5cm, left=2cm, right=2cm}
 
-% --- DESIGN ---
+% --- DESIGN & COULEURS ---
 \usepackage{xcolor}
 \usepackage{colortbl}
 \definecolor{BrandPrimary}{HTML}{0D9488}
@@ -20,70 +20,84 @@
 
 \usepackage{titlesec}
 \titleformat{\section}{\color{BrandPrimary}\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
+\titleformat{\subsection}{\color{BrandDark}\normalfont\large\bfseries}{\thesubsection}{1em}{}
 
 % --- POLICE ---
 \usepackage{helvet}
 \renewcommand{\familydefault}{\sfdefault}
 
+\newcommand{\makebrandtitle}{
+    \begin{tcolorbox}[enhanced, colback=BrandDark, colframe=BrandPrimary, arc=10pt, boxrule=2pt, halign=center]
+        \vspace{0.3cm}
+        {\Huge \bfseries \color{white} ZENITH LEARN} \\
+        \vspace{0.2cm}
+        {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 08} \\
+        \vspace{0.3cm}
+    \end{tcolorbox}
+    \vspace{0.5cm}
+}
+
 \begin{document}
 
-\begin{tcolorbox}[enhanced, colback=BrandDark, colframe=BrandPrimary, arc=10pt, boxrule=2pt, halign=center]
-    \vspace{0.3cm}
-    {\Huge \bfseries \color{white} ZENITH LEARN} \\
-    \vspace{0.2cm}
-    {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 08} \\
-    \vspace{0.5cm}
-    {\small \color{gray} Neutralisation du Biais de Disponibilité (Privilège vs Mérite)}
-    \vspace{0.3cm}
-\end{tcolorbox}
+\makebrandtitle
 
-\section{Analyse sémantique : Le Biais de Privilège}
-Le \textbf{TWIST 08} soulève une injustice structurelle : \textit{"Les apprenants avec le meilleur débit et le plus de temps libre dominent toutes vos métriques."}
+\section{Introduction et Problématique}
+Le \textbf{TWIST 08} s'attaque à une injustice algorithmique invisible mais dévastatrice : le biais de disponibilité. Le constat est simple : \textit{``Les apprenants avec le meilleur débit et le plus de temps libre dominent toutes vos métriques.''} 
 
-C'est un \textbf{biais de disponibilité}. Un entrepreneur rural avec une connexion 3G aléatoire et des responsabilités familiales lourdes peut être \textit{plus} méritant et avoir un potentiel \textit{supérieur} à un étudiant urbain fibré et sans contraintes, même si ses métriques (temps passé, rapidité de complétion) sont inférieures. L'IA doit corriger ce "bruit sociologique" pour ne pas devenir une machine à reproduire les inégalités.
+Sans correction, l'IA devient une machine à reproduire les inégalités géographiques et sociales. Un entrepreneur rural, avec une connexion 3G instable et des responsabilités agricoles, peut être \textit{plus méritant} et avoir un \textit{meilleur potentiel} qu'un étudiant urbain fibré, même si ses temps de complétion sont plus longs. Le TWIST 08 introduit la notion de **Réussite Relative au Contexte**.
+
+\section{Objectif Apparent vs Réalité Algorithmique}
+\begin{itemize}
+    \item \textbf{Objectif Apparent :} Favoriser ceux qui vont le plus vite et qui sont les plus assidus.
+    \item \textbf{Réalité Algorithmique :} Favorise le ``Privilège de Connexion'' et le ``Temps Libre'', transformant la méritocratie en une sélection par la bande passante.
+\end{itemize}
 
 \section{Modélisation Mathématique de l'Équité}
-Nous introduisons un **Facteur de Résilience** ($\rho$) qui vient pondérer les résultats bruts.
+L'IA doit neutraliser le "bruit sociologique" en pondérant les succès par la difficulté structurelle de l'apprenant.
 
 \subsection{Formule du Score Équitable ($SPI^*$)}
 \begin{equation}
-SPI^*(u) = SPI(u) \cdot \frac{1}{\Omega(Internet, Time)} 
+SPI^*(u) = SPI(u) \cdot \frac{1}{\Omega(\text{Net}, \text{Time})}
 \end{equation}
 
-\subsection{Détail et Justification des termes}
+\subsection{Genèse de la formule : pourquoi une division ?}
+La construction mathématique est ici le miroir exact de la philosophie du coaching entrepreneurial : \textbf{réussir avec moins, c'est réussir plus}. 
+
+L'idée est de définir un \textbf{Indice de Facilité $\Omega$}. Si un utilisateur a toutes les facilités (Fibre, 100\% de temps libre), $\Omega$ sera élevé. À l'inverse, s'il a des contraintes fortes, $\Omega$ sera faible. En divisant le succès brut ($SPI$) par cet indice de facilité, nous opérons un redressement :
 \begin{itemize}
-    \item \textbf{$\Omega(Internet, Time)$ (Indice de Facilité) :} 
-    Une fonction modélisant les conditions structurelles de l'apprenant. 
+    \item L'étudiant privilégié voit son score rester tel quel ou subir un léger malus relatif.
+    \item L'entrepreneur résilient voit son score amplifié par le dénominateur faible.
+\end{itemize}
+C'est la traduction mathématique de la \textbf{resilience factorielle}.
+
+\subsection{Détail et justification de chaque terme}
+\begin{itemize}
+    \item \textbf{$SPI(u)$ :} L'indice de potentiel entrepreneurial brut (issu du TWIST 04).
+    
+    \item \textbf{$\Omega(\text{Net}, \text{Time})$ (Indice de Facilité Structurelle) :} 
+    Une fonction modélisant le confort d'apprentissage. 
     \begin{itemize}
-        \item \textbf{Internet (Débit)} : Un haut débit (Fibre) réduit l'effort de visionnage. On le modélise par un coefficient $\alpha_{net} \in [1, 1.5]$.
-        \item \textbf{Time (Temps Libre)} : Le "Temps de cerveau disponible". Un utilisateur qui travaille en parallèle a un "coût d'opportunité" plus élevé.
+        \item \textbf{Net (Débit Internet)} : Un haut débit réduit les frictions. Un apprenant qui termine un cours avec une latence de 500ms fait preuve d'une ténacité bien supérieure. Le coefficient $\alpha_{net}$ varie de $0.7$ (Edge/3G) à $1.3$ (Fibre).
+        \item \textbf{Time (Disponibilité)} : Le ``coût d'opportunité'' du temps. Un utilisateur qui travaille à côté ou gère un foyer n'a pas la même capacité de concentration qu'un utilisateur à 100\% sur la plateforme.
     \end{itemize}
-    \item \textbf{Le quotient $\frac{1}{\Omega}$ :} Mathématiquement, nous \textbf{divisons} le succès par la facilité. 
-    \begin{itemize}
-        \item \textbf{Concrètement} : À succès égal ($SPI$), l'apprenant qui a réussi avec \textit{moins} de moyens (Internet faible, peu de temps) verra son score $SPI^*$ augmenter par le jeu de la résilience.
-    \end{itemize}
+    
+    \item \textbf{Pénalité vs Récompense :} Il est crucial de noter qu'on ne pénalise pas les riches, on valorise l'effort nécessaire pour atteindre le résultat. C'est un \textbf{redressement par le mérite résilient}.
 \end{itemize}
 
-\section{Nouvelle Structure du Dataset (Contexte Socio-Écon.)}
-Le dataset doit collecter des métriques sur le contexte de l'usage.
+\section{Structure du Dataset (Contexte Socio-Écon.)}
+Pour opérer ce calcul, Zenith Learn collecte des métriques sur les conditions d'usage.
 \begin{table}[h!]
 \centering
 \begin{tabular}{|l|l|p{7cm}|}
 \hline
-\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Rôle T08 \\ \hline
-\texttt{bandwidth\_quality} & Enum & $[Low, Medium, High]$. \\ \hline
-\texttt{working\_status} & Bool & Indique si l'apprenant a une activité parallèle intensive. \\ \hline
-\end{rowcolor}
+\rowcolor{BrandDark} \color{white} Colonne & \color{white} Type & \color{white} Rôle T08 \\ \hline
+\texttt{bandwidth\_quality} & Enum & $[\text{Low, Medium, High}]$. \\ \hline
+\rowcolor{BrandPrimary!20} \texttt{work\_load} & Float & Charge de travail externe estimée $[0, 1]$. \\ \hline
+\texttt{resilience\_coeff} & Float & Valeur finale de $1/\Omega$. \\ \hline
 \end{tabular}
 \end{table}
 
-\section{Impact sur les acquis précédents}
-\begin{itemize}
-    \item \textbf{Neutralisation de la Complétion (T03)} : La rapidité de complétion d'un cours long n'est plus seulement un signe de discipline, mais doit être relativisée par le débit internet.
-    \item \textbf{Réajustement du Top 100 (T07)} : Le classement pour le bailleur devient un classement au \textbf{mérite résilient} et non à la performance brute.
-\end{itemize}
-
 \section{Conclusion}
-Le TWIST 08 garantit que Zenith Learn ne finance pas seulement les plus "équipés", mais les plus "capables". Mathématiquement, nous récompensons la \textbf{puissance de volonté} au-delà de la puissance de connexion.
+Le TWIST 08 assure que Zenith Learn ne finance pas seulement les plus ``équipés'', mais les plus ``capables''. En divisant le succès par la facilité, nous récompensons mathématiquement la puissance de la volonté. L'IA devient ainsi un vecteur d'\textbf{ascension sociale réelle}, capable de détecter le diamant dans l'argile, là où une IA classique ne verrait qu'un utilisateur lent et inconstant.
 
 \end{document}

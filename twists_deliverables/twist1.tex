@@ -42,7 +42,9 @@
 \makebrandtitle
 
 \section{Introduction et Problématique}
-L'objectif du \textbf{TWIST 01} s'inscrit dans la problématique de la plateforme : passer d'un modèle de recommandation passif à un modèle actif favorisant l'entrepreneuriat réel. Le danger identifié est le "Piège de l'Engagement" : maximiser l'engagement et la complétion sans distinction crée une \textit{dépendance destructrice}.
+L'objectif du \textbf{TWIST 01} s'inscrit dans la problématique de la plateforme : passer d'un modèle de recommandation passif à un modèle actif favorisant l'entrepreneuriat réel. Le danger identifié est le ``Piège de l'Engagement'' : maximiser l'engagement et la complétion sans distinction crée une \textit{dépendance destructrice}.
+
+En d'autres termes, une plateforme qui optimise naïvement ses métriques d'engagement ressemble à un libraire qui recommanderait les livres les plus \textit{feuilletés}, sans distinguer si le lecteur les a vraiment lus ou s'il a simplement tourné les pages. Le TWIST 01 pose les fondations d'un signal d'engagement plus honnête.
 
 \section{Objectif Apparent vs Réalité Algorithmique}
 \begin{itemize}
@@ -58,24 +60,30 @@ Pour neutraliser ce piège, nous définissons le score d'engagement $S_E$ comme 
 S_{E}(u, c) = w_{rat} \cdot R_{norm}(u,c) + w_{time} \cdot \Psi(T_{acc}, T_{theo})
 \end{equation}
 
+\subsection{Genèse de la formule : pourquoi cette construction ?}
+
+L'idée directrice est simple : l'engagement réel d'un apprenant envers un cours ne peut pas être capturé par un seul signal. Si l'on se fie uniquement à la note donnée par l'utilisateur, on risque de capturer de la politesse (noter 5/5 par habitude) plutôt que de l'intérêt profond. Si l'on se fie uniquement au temps passé, on risque de confondre un apprenant absorbé avec un apprenant qui a laissé la vidéo tourner en arrière-plan. La formule résout ce problème en \textbf{combinant} ces deux sources d'information de manière pondérée, chacune jouant un rôle de contre-pouvoir sur l'autre.
+
 \subsection{Détail et justification de chaque terme}
 \begin{itemize}
-    \item \textbf{$w_{rat} = 0.6$ (Poids de l'autorité consciente) :} 
-    Représente 60\% de la note finale. Nous accordons une prime au jugement explicite de l'utilisateur (le rating), car c'est le seul signal de satisfaction consciente.
-    
-    \item \textbf{$R_{norm}(u,c) = \frac{R_{u,c} - 1}{5 - 1}$ (Rating Normalisé) :} 
-    Le terme $R_{u,c}$ est la note brute (1 à 5). La normalisation $(R-min)/(max-min)$ projette cette valeur sur l'intervalle $[0, 1]$. Sans cela, une note de 5 écraserait mathématiquement les autres signaux (souvent décimaux).
-    
-    \item \textbf{$w_{time} = 0.4$ (Poids de l'investissement inconscient) :} 
-    Représente 40\% de la note. C'est le signal de "temps passé". Il sert de contre-pouvoir au rating : un utilisateur peut mettre une bonne note sans avoir vraiment investi du temps (politesse), ou inversement.
-    
-    \item \textbf{$\Psi(T_{acc}, T_{theo}) = \min\left( \frac{T_{acc}}{T_{theo}}, \delta \right) \cdot \frac{1}{\delta}$ (Fonction de Saturation) :} 
-    C'est le c\oe ur du TWIST 01.
+    \item \textbf{$w_{rat} = 0.6$ (Poids de l'autorité consciente) :}
+    Représente 60\% de la note finale. Nous accordons une prime au jugement explicite de l'utilisateur (le rating), car c'est le seul signal de satisfaction consciente. Quand un apprenant prend la peine de noter un cours, il effectue un acte réflexif délibéré : il s'arrête, il évalue, il se prononce. Ce signal mérite donc d'être majoritaire dans le calcul.
+
+    \item \textbf{$R_{norm}(u,c) = \frac{R_{u,c} - 1}{5 - 1}$ (Rating Normalisé) :}
+    Le terme $R_{u,c}$ est la note brute sur une échelle de 1 à 5. La normalisation par la formule $(R - \text{min}) / (\text{max} - \text{min})$ projette cette valeur sur l'intervalle $[0, 1]$. Cette étape est indispensable pour deux raisons. D'abord, sans normalisation, une note de 5 vaut numériquement 5 fois une note de 1, ce qui écraserait mathématiquement le signal de temps (souvent compris entre 0 et 1). Ensuite, travailler sur $[0, 1]$ pour tous les termes permet de comparer des signaux d'origines différentes sur une échelle commune et cohérente.
+
+    \item \textbf{$w_{time} = 0.4$ (Poids de l'investissement inconscient) :}
+    Représente 40\% de la note. C'est le signal de ``temps passé''. Il sert de contre-pouvoir au rating : un utilisateur peut mettre une bonne note sans avoir vraiment investi du temps (comportement de politesse), ou inversement passer beaucoup de temps sur un cours difficile sans vouloir le noter haut (frustration sans démission). Ce poids à 40\% est suffisant pour corriger les aberrations du rating, sans pour autant renverser la hiérarchie : l'avis explicite de l'utilisateur reste prioritaire.
+
+    \item \textbf{$\Psi(T_{acc}, T_{theo}) = \min\left( \frac{T_{acc}}{T_{theo}}, \delta \right) \cdot \frac{1}{\delta}$ (Fonction de Saturation) :}
+    C'est le c\oe ur du TWIST 01. Cette fonction mérite une explication détaillée de sa construction.
     \begin{itemize}
-        \item \textbf{$T_{acc}$ (Temps accompli) :} Heures réelles passées.
-        \item \textbf{$T_{theo}$ (Temps théorique) :} Durée standard du cours.
-        \item \textbf{$\delta = 1.5$ (Seuil de saturation) :} Pourquoi 1.5 ? Parce qu'au-delà de 150\% du temps prévu, passer plus de temps n'indique plus de l'intérêt, mais de la difficulté ou du visionnage passif (effet "spectateur"). 
-        \item \textbf{Concrètement : } Si $T_{acc} = 2h$ pour un cours de $1h$, le ratio est 2. La fonction $\min$ le ramène à $1.5$. Ainsi, l'utilisateur n'est pas récompensé plus qu'un autre pour avoir "stagné" sur le contenu.
+        \item \textbf{$T_{acc}$ (Temps accompli) :} Les heures réelles que l'utilisateur a passé sur le cours, telles qu'enregistrées par le système.
+        \item \textbf{$T_{theo}$ (Temps théorique) :} La durée standard du cours, définie par son créateur ou calculée par le système.
+        \item \textbf{Le ratio $T_{acc}/T_{theo}$ :} Ce rapport mesure l'intensité de consommation. Un ratio de 1 signifie que l'utilisateur a consommé le cours exactement comme prévu. Un ratio de 0.5 signifie qu'il n'en a vu que la moitié. Un ratio de 2 signifie qu'il a passé deux fois plus de temps que nécessaire.
+        \item \textbf{$\delta = 1.5$ (Seuil de saturation) :} Pourquoi 1.5 ? Parce qu'au-delà de 150\% du temps prévu, passer plus de temps n'indique plus de l'intérêt croissant, mais révèle plutôt de la difficulté excessive, du visionnage passif (effet ``apprenant fantôme''), ou des allers-retours répétés qui trahissent la confusion plus que l'engagement. Le seuil 1.5 est un choix de design raisonné : il tolère les relectures bénéfiques (jusqu'à 50\% de temps supplémentaire) sans sur-récompenser la stagnation.
+        \item \textbf{La division finale par $\delta$ :} Après l'application du $\min$, on divise par $\delta$ pour ramener la valeur maximale à exactement 1. Sans ce facteur, la valeur maximale de $\Psi$ serait $\delta = 1.5$, ce qui casserait la cohérence de l'intervalle $[0,1]$. La division par $\delta$ est donc une normalisation de sortie qui garantit que $\Psi \in [0, 1]$ en toutes circonstances.
+        \item \textbf{Concrètement :} Si $T_{acc} = 2h$ pour un cours de $1h$, le ratio est 2. La fonction $\min$ le ramène à $1.5$. Après division par $1.5$, $\Psi = 1$. Ainsi, un utilisateur qui a stagné deux heures sur un cours d'une heure n'est pas récompensé plus qu'un autre qui l'a simplement revu une demi-heure de plus.
     \end{itemize}
 \end{itemize}
 
@@ -107,6 +115,6 @@ Rating (1-5) & Engagement Explicite & Source de $R_{norm}$ \\ \hline
 \end{table}
 
 \section{Conclusion}
-En séparant strictement l'engagement et la complétion, et en saturant mathématiquement le temps passé, nous neutralisons la dépendance au "temps de cerveau disponible" pour valoriser la pertinence réelle.
+En séparant strictement l'engagement et la complétion, et en saturant mathématiquement le temps passé, nous neutralisons la dépendance au ``temps de cerveau disponible'' pour valoriser la pertinence réelle. Le TWIST 01 pose le socle de toute la modélisation : un signal d'engagement $S_E$ robuste, normalisé, résistant aux comportements passifs, et prêt à être enrichi par les twists suivants.
 
 \end{document}

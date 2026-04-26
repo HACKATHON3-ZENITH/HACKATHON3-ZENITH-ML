@@ -8,7 +8,7 @@
 \usepackage{geometry}
 \geometry{top=2cm, bottom=2.5cm, left=2cm, right=2cm}
 
-% --- DESIGN ---
+% --- DESIGN & COULEURS ---
 \usepackage{xcolor}
 \usepackage{colortbl}
 \definecolor{BrandPrimary}{HTML}{0D9488}
@@ -19,64 +19,83 @@
 
 \usepackage{titlesec}
 \titleformat{\section}{\color{BrandPrimary}\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
+\titleformat{\subsection}{\color{BrandDark}\normalfont\large\bfseries}{\thesubsection}{1em}{}
 
 % --- POLICE ---
 \usepackage{helvet}
 \renewcommand{\familydefault}{\sfdefault}
 
+\newcommand{\makebrandtitle}{
+    \begin{tcolorbox}[enhanced, colback=BrandDark, colframe=BrandPrimary, arc=10pt, boxrule=2pt, halign=center]
+        \vspace{0.3cm}
+        {\Huge \bfseries \color{white} ZENITH LEARN} \\
+        \vspace{0.2cm}
+        {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 09} \\
+        \vspace{0.3cm}
+    \end{tcolorbox}
+    \vspace{0.5cm}
+}
+
 \begin{document}
 
-\begin{tcolorbox}[enhanced, colback=BrandDark, colframe=BrandPrimary, arc=10pt, boxrule=2pt, halign=center]
-    \vspace{0.3cm}
-    {\Huge \bfseries \color{white} ZENITH LEARN} \\
-    \vspace{0.2cm}
-    {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 09} \\
-    \vspace{0.5cm}
-    {\small \color{gray} Audit Granulaire : Explication Ligne par Ligne du Potentiel}
-    \vspace{0.3cm}
-\end{tcolorbox}
+\makebrandtitle
 
-\section{Analyse sémantique : L'Exigence d'Audit-Fiabilité}
-Le \textbf{TWIST 09} est une extension radicale du TWIST 06 : \textit{"Le bailleur exige une explication ligne par ligne de chaque score individuel."}
+\section{Introduction et Problématique}
+Le \textbf{TWIST 09} marque l'étape ultime de la transparence algorithmique exigée par les investisseurs : \textit{``Le bailleur exige une explication ligne par ligne de chaque score individuel.''} 
 
-L'IA ne doit plus seulement justifier sa logique globale, elle doit être capable de rendre des comptes sur chaque individu. C'est le passage de l'explication "modèle" à l'explication "instance". Sans cela, le bailleur ne peut pas valider la probité du classement Top 100 (T07).
+L'IA doit sortir de la justification globale (TWIST 06) pour entrer dans l'audit individuel. Il ne s'agit plus de dire ``comment le modèle fonctionne'', mais de prouver \textbf{pourquoi cet apprenant précis a obtenu ce score précis}. Sans cette granularité, le bailleur ne peut pas justifier l'allocation des fonds du Top 100 devant ses propres instances de contrôle. Le TWIST 09 transforme l'IA en un \textbf{Livre de Comptes Algorithmique}.
 
-\section{Modélisation Mathématique de la Granularité}
-Nous passons d'une explication par features globales à une décomposition \textbf{additive individuelle} des facteurs de succès.
+\section{Objectif Apparent vs Réalité Algorithmique}
+\begin{itemize}
+    \item \textbf{Objectif Apparent :} Donner un score global de potentiel.
+    \item \textbf{Réalité Algorithmique :} Produit un score final à partir de milliers d'interactions. Ces interactions sont souvent noyées dans des moyennes, rendant l'explication individuelle opaque.
+\end{itemize}
 
-\subsection{La Formule de Décomposition Linéique ($Score_u$)}
+\section{Modélisation de la Transparence Granulaire}
+Le passage de l'explication "modèle" (globale) à l'explication "instance" (individuelle) repose sur l'utilisation des valeurs d'apport marginal.
+
+\subsection{La Formule de Décomposition Additive ($Score_u$)}
 \begin{equation}
 Score(u) = \phi_0 + \sum_{j=1}^{M} \phi_j(u)
 \end{equation}
 
-\subsection{Détail et Justification des termes (SHAP approach)}
+\subsection{Genèse de la formule : pourquoi la décomposition additive ?}
+La formule adoptée est celle de la \textbf{Loi d'Additivité Locale}. Pourquoi ce choix ? 
+
+Un bailleur n'acceptera jamais une explication du type : ``L'IA a pondéré 20 caractéristiques de manière non-linéaire''. Il veut une lecture comptable. La décomposition additive permet d'affirmer que le score final est la somme exacte de gains et de pertes. 
 \begin{itemize}
-    \item \textbf{$\phi_0$ (Base de référence) :} Le score moyen d'un apprenant "neutre" dans le système.
-    \item \textbf{$\phi_j(u)$ (Contribution de la feature $j$ pour l'individu $u$) :} 
-    Ce terme mesure l'impact positif ou négatif d'une variable spécifique sur le score final de cet utilisateur précis. 
-    \item \textbf{Ligne par ligne :} Mathématiquement, la somme des contributions doit être exactement égale au score final (\textbf{Propriété d'Additivité locale}). 
-    \item \textbf{Concrètement pour le bailleur} : Pour l'apprenant classé 1er, l'IA produit un tableau :
+    \item \textbf{$\phi_0$} est le "Capital de départ" (la moyenne du système).
+    \item Chaque \textbf{$\phi_j(u)$} est un "Profit" ou une "Charge" lié à un comportement de l'apprenant.
+\end{itemize}
+C'est la seule forme mathématique qui permet un audit \textbf{ligne par ligne}, où la somme de chaque cellule d'explication redonne le score final sans erreur d'arrondi ou de résidu caché.
+
+\subsection{Détail et justification des termes (SHAP Approach)}
+\begin{itemize}
+    \item \textbf{$\phi_0$ (Valeur de Base) :} Le score moyen d'un entrepreneur "théorique" sur la plateforme. C'est le point zéro de l'explication.
+    
+    \item \textbf{$\phi_j(u)$ (Contribution marginale de la feature $j$) :} 
+    Utilisant l'approche de Shapley, ce terme mesure l'impact pur de la caractéristique $j$ sur le score de l'apprenant $u$, en tenant compte de toutes les interactions avec les autres variables.
     \begin{itemize}
-        \item Action Terrain (T04) : $+0.42$.
-        \item Résilience Internet (T08) : $+0.15$.
-        \item Engagement (T01) : $+0.05$.
-        \item \textbf{Total :} Score final.
+        \item \textit{Exemple :} ``L'action terrain accomplie hier a ajouté $+0.12$ à votre potentiel de réussite aujourd'hui.''
     \end{itemize}
+
+    \item \textbf{Interprétabilité Ligne par Ligne :} Le système génère un rapport CSV où chaque ligne correspond à un apprenant et chaque colonne à une contribution ($\phi_j$). Pour le bailleur, c'est la preuve ultime qu'aucune décision n'est arbitraire.
 \end{itemize}
 
-\section{Nouvelle Structure du Dataset (Tableau d'Expliquabilité)}
-Le dataset d'audit devient une matrice de contributions par utilisateur.
+\section{Structure du Dataset (Tableau d'Expliquabilité)}
+Le dataset d'audit devient une matrice d'impacts individuels.
 \begin{table}[h!]
 \centering
 \begin{tabular}{|l|l|p{7cm}|}
 \hline
-\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Justification T09 \\ \hline
-\texttt{feat\_action\_impact} & Float & Contribution de l'action à l'unité près. \\ \hline
-\texttt{feat\_resilience\_impact} & Float & Preuve mathématique de la correction du biais. \\ \hline
+\rowcolor{BrandDark} \color{white} Colonne & \color{white} Type & \color{white} Justification T09 \\ \hline
+\texttt{feat\_action\_impact} & Float & Part du score attribuée aux actions terrain. \\ \hline
+\rowcolor{BrandPrimary!20} \texttt{feat\_resil\_impact} & Float & Part du score attribuée à la résilience (T08). \\ \hline
+\texttt{audit\_check\_sum} & Float & Somme des $\phi_j$ (doit être égale au score final). \\ \hline
 \end{tabular}
 \end{table}
 
 \section{Conclusion}
-Le TWIST 09 fait de Zenith Learn la première plateforme de recommandation \textbf{entièrement auditable ligne par ligne}. Nous transformons la boîte noire algorithmique en un livre de comptes ouvert pour le bailleur.
+Le TWIST 09 achève la promesse de transparence de Zenith Learn. En transformant la boîte noire en un livre ouvert, nous offrons au bailleur la garantie que chaque centime investi est mathématiquement justifié. L'IA n'est plus un oracle, elle est un \textbf{expert-comptable du potentiel humain}, prêt à répondre de chaque décision devant tout audit externe.
 
 \end{document}
