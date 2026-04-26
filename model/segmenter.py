@@ -80,3 +80,28 @@ def get_segment_stats(segments: Dict[str, UserSegment]) -> Dict[str, int]:
     for seg in segments.values():
         counts[seg] += 1
     return counts
+
+
+def validate_segment_distribution(segments: Dict[str, UserSegment]) -> bool:
+    """
+    TWIST 05 — Vérifie que la segmentation produit bien deux groupes
+    distincts avec une répartition proche de ~20% actifs / ~80% explorateurs.
+
+    Lève un warning si le ratio dévie fortement, mais ne bloque pas
+    l'exécution (les données réelles peuvent varier).
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    stats = get_segment_stats(segments)
+    total = sum(stats.values())
+    if total == 0:
+        return False
+    ratio_actif = stats["entrepreneur_actif"] / total
+    logger.info(
+        "T05 — Répartition : %d actifs (%.0f%%) / %d explorateurs (%.0f%%)",
+        stats["entrepreneur_actif"], ratio_actif * 100,
+        stats["explorateur"], (1 - ratio_actif) * 100,
+    )
+    if ratio_actif < 0.05 or ratio_actif > 0.60:
+        logger.warning("T05 — Répartition anormale ! Vérifier les critères.")
+    return True
