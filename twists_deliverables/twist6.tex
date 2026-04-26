@@ -1,0 +1,92 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- PAQUETS DE BASE ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{geometry}
+\geometry{top=2cm, bottom=2.5cm, left=2cm, right=2cm}
+
+% --- DESIGN ---
+\usepackage{xcolor}
+\usepackage{colortbl}
+\definecolor{BrandPrimary}{HTML}{0D9488}
+\definecolor{BrandDark}{HTML}{111827}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+
+\usepackage{titlesec}
+\titleformat{\section}{\color{BrandPrimary}\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
+\titleformat{\subsection}{\color{BrandDark}\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+% --- POLICE ---
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+
+\begin{tcolorbox}[enhanced, colback=BrandDark, colframe=BrandPrimary, arc=10pt, boxrule=2pt, halign=center]
+    \vspace{0.3cm}
+    {\Huge \bfseries \color{white} ZENITH LEARN} \\
+    \vspace{0.2cm}
+    {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 06} \\
+    \vspace{0.5cm}
+    {\small \color{gray} Transparence Algorithmique et Droit à l'Explication}
+    \vspace{0.3cm}
+\end{tcolorbox}
+
+\section{Analyse sémantique : Le Droit de Comprendre}
+Le \textbf{TWIST 06} pose un problème de gouvernance : \textit{"Les créateurs veulent comprendre pourquoi leurs cours sont ou non recommandés."}
+
+Jusqu'ici, l'IA fonctionnait comme un arbitre silencieux. Le twist impose de briser l'effet "Boîte Noire". Une recommandation sans justification est une \textbf{dépendance destructrice} car elle empêche le créateur de contenu d'améliorer sa pédagogie par manque de feedback actionnable.
+
+\section{Ce que l'on attend réellement de nous}
+Nous devons passer d'une IA \textit{prédictive} à une IA \textit{explicative}. 
+\begin{enumerate}
+    \item \textbf{Index de Confiance} : Chaque recommandation doit être associée à un niveau de certitude.
+    \item \textbf{Décomposition des gisements de valeur} : Le créateur doit voir quels termes de la formule (T01-T05) tirent son cours vers le haut ou vers le bas.
+\end{enumerate}
+
+\section{Modélisation Mathématique de l'Explicabilité}
+Pour répondre à cette exigence, nous modélisons la \textbf{Contribution Locale} de chaque feature à la décision finale.
+
+\subsection{Formule de la Décomposition de Score ($\Delta_{score}$)}
+Le score final $S$ est une somme de contributions $C_i$. Nous introduisons le vecteur d'explication $\vec{E}$ :
+\begin{equation}
+\vec{E}(c) = \{ C_1, C_2, ..., C_n \} \quad \text{où} \quad C_i = w_{i, seg} \cdot (F_{i,c} - \bar{F}_i)
+\end{equation}
+
+\subsection{Détail et Justification des termes}
+\begin{itemize}
+    \item \textbf{$F_{i,c}$ (Feature active) :} La valeur brute du cours $c$ sur la caractéristique $i$.
+    \item \textbf{$\bar{F}_i$ (Moyenne de référence) :} La valeur moyenne de tous les cours du catalogue sur cette caractéristique.
+    \item \textbf{$(F_{i,c} - \bar{F}_i)$ (Écart à la norme) :} Ce terme est crucial. Il indique si le cours est "mieux" ou "moins bien" que la moyenne. Un créateur voit ainsi que son cours est pénalisé s'il est en dessous de la moyenne de complétion ajustée (T03).
+    \item \textbf{$w_{i, seg}$ (Poids segmenté) :} Le poids défini au TWIST 05. Il explique au créateur que l'IA le recommande parce qu'il s'adresse bien au segment cible (ex: Actifs).
+\end{itemize}
+
+\section{Nouvelle Structure du Dataset (Audit Logs)}
+Le système génère désormais une table d'audit pour les créateurs.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|p{7cm}|}
+\hline
+\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Rôle T06 \\ \hline
+\texttt{confidence\_index} & Float & Probabilité de succès de la recommandation ($[0,1]$). \\ \hline
+\texttt{shap\_values} & JSON/Vector & Stockage des contributions $C_i$ pour affichage frontend. \\ \hline
+\texttt{audit\_timestamp} & Date & Horodatage de la décision pour traçabilité. \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Impact sur les acquis précédents}
+\begin{itemize}
+    \item \textbf{Audit des TWIST 01-04} : L'IA doit être capable de dire : "Je ne recommande pas ce cours car son $S_E$ est bon mais son $S_C^{adj}$ (T03) est trop faible par rapport à la durée $D$."
+    \item \textbf{Clarification du TWIST 05} : L'explication révèle au créateur : "Votre cours est un succès chez les 80\% (Explorateurs) mais échoue chez les 20\% (Acteurs)."
+\end{itemize}
+
+\section{Conclusion}
+Le TWIST 06 transforme Zenith Learn en un écosystème ouvert. En remplaçant l'opacité par la \textit{Transparence Mathématique}, nous redonnons le pouvoir aux créateurs de devenir, eux aussi, de meilleurs entrepreneurs de la connaissance.
+
+\end{document}
