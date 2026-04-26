@@ -620,6 +620,7 @@ class ZenithRecommender:
                     "contribution": round(raw_score * bias_factor - raw_score, 4)
                 })
 
+            score = sum(c["contribution"] for c in contributions)
             rankings.append({
                 "learner_id": uid,
                 "score": round(score, 4),
