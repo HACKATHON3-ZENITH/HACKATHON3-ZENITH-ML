@@ -1,0 +1,82 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- PAQUETS DE BASE ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{geometry}
+\geometry{top=2cm, bottom=2.5cm, left=2cm, right=2cm}
+
+% --- DESIGN ---
+\usepackage{xcolor}
+\usepackage{colortbl}
+\definecolor{BrandPrimary}{HTML}{0D9488}
+\definecolor{BrandDark}{HTML}{111827}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+
+\usepackage{titlesec}
+\titleformat{\section}{\color{BrandPrimary}\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
+
+% --- POLICE ---
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+
+\begin{tcolorbox}[enhanced, colback=BrandDark, colframe=BrandPrimary, arc=10pt, boxrule=2pt, halign=center]
+    \vspace{0.3cm}
+    {\Huge \bfseries \color{white} ZENITH LEARN} \\
+    \vspace{0.2cm}
+    {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 09} \\
+    \vspace{0.5cm}
+    {\small \color{gray} Audit Granulaire : Explication Ligne par Ligne du Potentiel}
+    \vspace{0.3cm}
+\end{tcolorbox}
+
+\section{Analyse sémantique : L'Exigence d'Audit-Fiabilité}
+Le \textbf{TWIST 09} est une extension radicale du TWIST 06 : \textit{"Le bailleur exige une explication ligne par ligne de chaque score individuel."}
+
+L'IA ne doit plus seulement justifier sa logique globale, elle doit être capable de rendre des comptes sur chaque individu. C'est le passage de l'explication "modèle" à l'explication "instance". Sans cela, le bailleur ne peut pas valider la probité du classement Top 100 (T07).
+
+\section{Modélisation Mathématique de la Granularité}
+Nous passons d'une explication par features globales à une décomposition \textbf{additive individuelle} des facteurs de succès.
+
+\subsection{La Formule de Décomposition Linéique ($Score_u$)}
+\begin{equation}
+Score(u) = \phi_0 + \sum_{j=1}^{M} \phi_j(u)
+\end{equation}
+
+\subsection{Détail et Justification des termes (SHAP approach)}
+\begin{itemize}
+    \item \textbf{$\phi_0$ (Base de référence) :} Le score moyen d'un apprenant "neutre" dans le système.
+    \item \textbf{$\phi_j(u)$ (Contribution de la feature $j$ pour l'individu $u$) :} 
+    Ce terme mesure l'impact positif ou négatif d'une variable spécifique sur le score final de cet utilisateur précis. 
+    \item \textbf{Ligne par ligne :} Mathématiquement, la somme des contributions doit être exactement égale au score final (\textbf{Propriété d'Additivité locale}). 
+    \item \textbf{Concrètement pour le bailleur} : Pour l'apprenant classé 1er, l'IA produit un tableau :
+    \begin{itemize}
+        \item Action Terrain (T04) : $+0.42$.
+        \item Résilience Internet (T08) : $+0.15$.
+        \item Engagement (T01) : $+0.05$.
+        \item \textbf{Total :} Score final.
+    \end{itemize}
+\end{itemize}
+
+\section{Nouvelle Structure du Dataset (Tableau d'Expliquabilité)}
+Le dataset d'audit devient une matrice de contributions par utilisateur.
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|p{7cm}|}
+\hline
+\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Justification T09 \\ \hline
+\texttt{feat\_action\_impact} & Float & Contribution de l'action à l'unité près. \\ \hline
+\texttt{feat\_resilience\_impact} & Float & Preuve mathématique de la correction du biais. \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Conclusion}
+Le TWIST 09 fait de Zenith Learn la première plateforme de recommandation \textbf{entièrement auditable ligne par ligne}. Nous transformons la boîte noire algorithmique en un livre de comptes ouvert pour le bailleur.
+
+\end{document}

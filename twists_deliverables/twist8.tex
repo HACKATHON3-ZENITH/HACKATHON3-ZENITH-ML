@@ -1,0 +1,89 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- PAQUETS DE BASE ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{geometry}
+\geometry{top=2cm, bottom=2.5cm, left=2cm, right=2cm}
+
+% --- DESIGN ---
+\usepackage{xcolor}
+\usepackage{colortbl}
+\definecolor{BrandPrimary}{HTML}{0D9488}
+\definecolor{BrandDark}{HTML}{111827}
+\definecolor{BrandWarning}{HTML}{EF4444}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+
+\usepackage{titlesec}
+\titleformat{\section}{\color{BrandPrimary}\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
+
+% --- POLICE ---
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+
+\begin{tcolorbox}[enhanced, colback=BrandDark, colframe=BrandPrimary, arc=10pt, boxrule=2pt, halign=center]
+    \vspace{0.3cm}
+    {\Huge \bfseries \color{white} ZENITH LEARN} \\
+    \vspace{0.2cm}
+    {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 08} \\
+    \vspace{0.5cm}
+    {\small \color{gray} Neutralisation du Biais de Disponibilité (Privilège vs Mérite)}
+    \vspace{0.3cm}
+\end{tcolorbox}
+
+\section{Analyse sémantique : Le Biais de Privilège}
+Le \textbf{TWIST 08} soulève une injustice structurelle : \textit{"Les apprenants avec le meilleur débit et le plus de temps libre dominent toutes vos métriques."}
+
+C'est un \textbf{biais de disponibilité}. Un entrepreneur rural avec une connexion 3G aléatoire et des responsabilités familiales lourdes peut être \textit{plus} méritant et avoir un potentiel \textit{supérieur} à un étudiant urbain fibré et sans contraintes, même si ses métriques (temps passé, rapidité de complétion) sont inférieures. L'IA doit corriger ce "bruit sociologique" pour ne pas devenir une machine à reproduire les inégalités.
+
+\section{Modélisation Mathématique de l'Équité}
+Nous introduisons un **Facteur de Résilience** ($\rho$) qui vient pondérer les résultats bruts.
+
+\subsection{Formule du Score Équitable ($SPI^*$)}
+\begin{equation}
+SPI^*(u) = SPI(u) \cdot \frac{1}{\Omega(Internet, Time)} 
+\end{equation}
+
+\subsection{Détail et Justification des termes}
+\begin{itemize}
+    \item \textbf{$\Omega(Internet, Time)$ (Indice de Facilité) :} 
+    Une fonction modélisant les conditions structurelles de l'apprenant. 
+    \begin{itemize}
+        \item \textbf{Internet (Débit)} : Un haut débit (Fibre) réduit l'effort de visionnage. On le modélise par un coefficient $\alpha_{net} \in [1, 1.5]$.
+        \item \textbf{Time (Temps Libre)} : Le "Temps de cerveau disponible". Un utilisateur qui travaille en parallèle a un "coût d'opportunité" plus élevé.
+    \end{itemize}
+    \item \textbf{Le quotient $\frac{1}{\Omega}$ :} Mathématiquement, nous \textbf{divisons} le succès par la facilité. 
+    \begin{itemize}
+        \item \textbf{Concrètement} : À succès égal ($SPI$), l'apprenant qui a réussi avec \textit{moins} de moyens (Internet faible, peu de temps) verra son score $SPI^*$ augmenter par le jeu de la résilience.
+    \end{itemize}
+\end{itemize}
+
+\section{Nouvelle Structure du Dataset (Contexte Socio-Écon.)}
+Le dataset doit collecter des métriques sur le contexte de l'usage.
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|p{7cm}|}
+\hline
+\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Rôle T08 \\ \hline
+\texttt{bandwidth\_quality} & Enum & $[Low, Medium, High]$. \\ \hline
+\texttt{working\_status} & Bool & Indique si l'apprenant a une activité parallèle intensive. \\ \hline
+\end{rowcolor}
+\end{tabular}
+\end{table}
+
+\section{Impact sur les acquis précédents}
+\begin{itemize}
+    \item \textbf{Neutralisation de la Complétion (T03)} : La rapidité de complétion d'un cours long n'est plus seulement un signe de discipline, mais doit être relativisée par le débit internet.
+    \item \textbf{Réajustement du Top 100 (T07)} : Le classement pour le bailleur devient un classement au \textbf{mérite résilient} et non à la performance brute.
+\end{itemize}
+
+\section{Conclusion}
+Le TWIST 08 garantit que Zenith Learn ne finance pas seulement les plus "équipés", mais les plus "capables". Mathématiquement, nous récompensons la \textbf{puissance de volonté} au-delà de la puissance de connexion.
+
+\end{document}

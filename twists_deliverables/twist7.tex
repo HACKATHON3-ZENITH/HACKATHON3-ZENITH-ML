@@ -1,0 +1,78 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- PAQUETS DE BASE ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{geometry}
+\geometry{top=2cm, bottom=2.5cm, left=2cm, right=2cm}
+
+% --- DESIGN ---
+\usepackage{xcolor}
+\usepackage{colortbl}
+\definecolor{BrandPrimary}{HTML}{0D9488}
+\definecolor{BrandDark}{HTML}{111827}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+
+\usepackage{titlesec}
+\titleformat{\section}{\color{BrandPrimary}\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
+
+% --- POLICE ---
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+
+\begin{tcolorbox}[enhanced, colback=BrandDark, colframe=BrandPrimary, arc=10pt, boxrule=2pt, halign=center]
+    \vspace{0.3cm}
+    {\Huge \bfseries \color{white} ZENITH LEARN} \\
+    \vspace{0.2cm}
+    {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 07} \\
+    \vspace{0.5cm}
+    {\small \color{gray} Sélection Méritocratique et Allocation de Ressources (Top 100)}
+    \vspace{0.3cm}
+\end{tcolorbox}
+
+\section{Analyse sémantique : La Pression de Sélection}
+Le \textbf{TWIST 07} introduit un enjeu financier réel : \textit{"Un bailleur veut financer les 100 apprenants les plus susceptibles de réussir."} 
+
+L'algorithme n'est plus seulement un guide pédagogique, il devient un \textbf{système d'allocation de capital}. La responsabilité mathématique est décuplée car une erreur de recommandation prive un entrepreneur d'un financement vital. La \textit{dépendance destructrice} ici serait de favoriser les profils "lisses" (ceux qui ont de bonnes notes) au détriment des profils "à impact" (ceux qui agissent).
+
+\section{Impact sur le modèle : Le Ranking de Réussite}
+L'IA doit désormais produire un classement global basé sur l'indice $SPI$ (Success Potential Index) défini au TWIST 04, mais avec une exigence de \textbf{robustesse statistique}.
+
+\section{Modélisation Mathématique de la Probabilité de Succès}
+Le score de réussite $P(Success|u)$ est une estimation de la densité de probabilité que l'apprenant $u$ transforme la formation en entreprise pérenne.
+
+\subsection{Formule de la Fonction de Classement $\mathcal{R}$}
+\begin{equation}
+\text{Rank}(u) = \text{Ranking}_{\forall u \in U} \left( SPI(u) \cdot \Phi(CI_u) \right)
+\end{equation}
+
+\subsection{Détail et Justification des termes}
+\begin{itemize}
+    \item \textbf{$SPI(u)$ (Success Potential Index) :} L'indice de rupture Action/Théorie du TWIST 04. 
+    \item \textbf{$\Phi(CI_u)$ (Modulateur de Confiance) :} 
+    Basé sur l'Index de Confiance du TWIST 06. Ce terme pénalise les profils dont le score est élevé mais instable (ex: une seule action isolée sans engagement académique minimal).
+    \item \textbf{Ranking Global :} Le bailleur exige un tri descendant. Mathématiquement, nous devons assurer la \textbf{bijectivité} du score pour éviter les ex-\ae quo massifs qui rendraient la sélection du bailleur impossible.
+\end{itemize}
+
+\section{Structure du Dataset (Output Spécification)}
+Le dataset de sortie pour le bailleur est une vue filtrée.
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|p{7cm}|}
+\hline
+\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Justification T07 \\ \hline
+\texttt{rank\_position} & Int & Position dans le Top 100. \\ \hline
+\texttt{success\_probability} & Float & Valeur normalisée du SPI pondéré. \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Conclusion}
+Le TWIST 07 transforme l'IA en un outil de justice économique. En utilisant le $SPI$ comme critère de sélection, nous garantissons que le financement du bailleur va vers l'impact réel et non vers le simple diplôme.
+
+\end{document}

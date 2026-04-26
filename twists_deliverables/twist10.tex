@@ -1,0 +1,79 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- PAQUETS DE BASE ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{geometry}
+\geometry{top=2cm, bottom=2.5cm, left=2cm, right=2cm}
+
+% --- DESIGN ---
+\usepackage{xcolor}
+\usepackage{colortbl}
+\definecolor{BrandPrimary}{HTML}{0D9488}
+\definecolor{BrandDark}{HTML}{111827}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+
+\usepackage{titlesec}
+\titleformat{\section}{\color{BrandPrimary}\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
+
+% --- POLICE ---
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+
+\begin{tcolorbox}[enhanced, colback=BrandDark, colframe=BrandPrimary, arc=10pt, boxrule=2pt, halign=center]
+    \vspace{0.3cm}
+    {\Huge \bfseries \color{white} ZENITH LEARN} \\
+    \vspace{0.2cm}
+    {\Large \color{BrandPrimary} IA Éthique : Modélisation TWIST 10} \\
+    \vspace{0.5cm}
+    {\small \color{gray} Indice de Fiabilité et Gestion des Données Auto-déclarées}
+    \vspace{0.3cm}
+\end{tcolorbox}
+
+\section{Analyse sémantique : La Fragilité de la Donnée}
+Le \textbf{TWIST 10} s'attaque à la racine de la donnée : \textit{"Les données d'action terrain sont rares et parfois auto-déclarées."} 
+
+Le système ne peut plus traiter une interaction comme une vérité absolue. Une action déclarée par l'apprenant lui-même sans preuve externe est une donnée \textbf{à faible confiance}. Se fier aveuglément à ces déclarations est une \textit{dépendance destructrice} car elle encourage la fraude au score pour obtenir le financement du bailleur.
+
+\section{Modélisation Mathématique de la Confiance ($CR$)}
+Nous introduisons un **Coefficient de Fiabilité** ($CR \in [0, 1]$) qui vient pondérer le Success Potential Index.
+
+\subsection{Formule du Score de Fidélité ($SPI^{final}$)}
+\begin{equation}
+SPI^{final}(u) = \sum_{j \in \text{Features}} (F_j \cdot w_j \cdot CR_j)
+\end{equation}
+
+\subsection{Détail et Justification des termes}
+\begin{itemize}
+    \item \textbf{$CR_j$ (Confidence Rating de la feature $j$) :} 
+    Défini selon la source de la donnée :
+    \begin{itemize}
+        \item \textbf{Vérifié (Source externe/Audit)} : $CR = 1.0$.
+        \item \textbf{Auto-déclaré (Formulaire apprenant)} : $CR = 0.70$. Nous appliquons une décote de sécurité de 30\%.
+        \item \textbf{Imputé (Donnée manquante estimée)} : $CR = 0.35$. Pour les 80\% d'explorateurs (T05) sans données, on ne met pas un 0 définitif mais un signal faible prudemment estimé.
+    \end{itemize}
+    \item \textbf{La pondération par feature :} Contrairement aux modèles simples, le TWIST 10 permet d'avoir confiance en l'engagement (système fiable) tout en se méfiant de l'action auto-déclarée.
+\end{itemize}
+
+\section{Nouvelle Structure du Dataset (Audit de Fiabilité)}
+Le dataset intègre désormais les métadonnées de source.
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|p{7cm}|}
+\hline
+\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Rôle T10 \\ \hline
+\texttt{source\_type} & Enum & $[System, SelfReported, Imputed]$. \\ \hline
+\rowcolor{BrandPrimary!20} \texttt{action\_confidence} & Float & Valeur $CR$ injectée dans le calcul final. \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Conclusion}
+Le TWIST 10 boucle la boucle de l'IA éthique de Zenith Learn. En doutant sainement des données, nous protégeons l'intégrité du système de financement. C'est l'étape ultime de la transformation : une IA qui sait non seulement prédire, mais aussi **douter et prouver**.
+
+\end{document}
