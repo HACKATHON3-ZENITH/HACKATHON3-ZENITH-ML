@@ -15,8 +15,8 @@ def _get_data_dir() -> Path:
     env_path = os.environ.get("DATA_DIR")
     if env_path:
         return Path(env_path)
-    # Default: ../docsML relative to zenith-ml/
-    return Path(__file__).parent.parent.parent / "docsML"
+    # Default: docsML relative to zenith-ml/
+    return Path(__file__).parent.parent / "docsML"
 
 
 def load_course_metadata() -> pd.DataFrame:
