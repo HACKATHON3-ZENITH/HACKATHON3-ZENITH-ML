@@ -311,6 +311,21 @@ def get_top_learners(
         response.append(rank_entry)
         
     return response
+    
+
+
+# ── TWIST 10 : Audit de fiabilité des données ────────────────────────
+
+@app.get("/api/v1/audit/confidence/{learner_id}")
+def audit_confidence(learner_id: str):
+    """
+    TWIST 10 : Endpoint de preuve.
+    Retourne le détail du calcul de confiance et d'imputation pour un apprenant.
+    """
+    if recommender is None:
+        raise HTTPException(503, "Modèle non chargé.")
+    
+    return recommender.audit_learner_data(learner_id)
 
 
 

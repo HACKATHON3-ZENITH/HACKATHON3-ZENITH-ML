@@ -683,3 +683,44 @@ class ZenithRecommender:
         # Trier par score décroissant
         rankings.sort(key=lambda x: x["score"], reverse=True)
         return rankings[:top_n]
+
+    # ==================================================================
+    # TWIST 10 : Audit de fiabilité des données
+    # ==================================================================
+
+    def audit_learner_data(self, learner_id: str) -> Dict:
+        """
+        TWIST 10 : Rapport d'audit prouvant la gestion de la fiabilité.
+        Détaille comment le score de confiance a été calculé.
+        """
+        if not self._fitted:
+            return {"error": "Modèle non entraîné."}
+            
+        user_data = self.interactions_df[self.interactions_df["learner_id"] == learner_id]
+        confidence = self.user_action_confidence.get(learner_id, 0.35)
+        
+        has_declared_actions = not user_data[
+            (user_data["action_completed"] == 1) | (user_data["business_launched"] == 1)
+        ].empty if not user_data.empty else False
+
+        avg_engagement = user_data["engagement_score"].mean() if not user_data.empty else 0.0
+        
+        audit_report = {
+            "learner_id": learner_id,
+            "twist_10_status": "Audit Complété",
+            "data_source": "Auto-déclarée" if has_declared_actions else "Absente (Imputation Active)",
+            "confidence_level": round(confidence, 2),
+            "reliability_details": {
+                "is_self_reported": has_declared_actions,
+                "is_verified": confidence > 0.9,
+                "basis": "Forte cohérence avec engagement" if confidence > 0.9 else "Déclaration standard" if has_declared_actions else "Manque de preuves terrain"
+            },
+            "imputation_logic": {
+                "active": not has_declared_actions,
+                "imputed_value": round(avg_engagement * 0.2, 4) if not has_declared_actions else 0.0,
+                "reason": "Signal faible basé sur assiduité (T10)" if not has_declared_actions else "Données présentes"
+            },
+            "score_impact": "Pondération x1.0" if confidence > 0.9 else f"Décote de sécurité x{confidence}"
+        }
+        
+        return audit_report
