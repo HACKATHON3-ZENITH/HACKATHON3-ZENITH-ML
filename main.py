@@ -278,9 +278,18 @@ def get_segment(learner_id: str):
 
 
 # ──────────────────────────────────────────────────────────────────────
-# TWIST 02 — AUCUN endpoint de notification / relance / badge / streak
-# Ce commentaire est intentionnel : il documente l'ABSENCE de ces
-# mécanismes comme une décision de design, pas un oubli.
+# TWIST 02 — AUCUN mécanisme de rétention artificielle
+#
+# Ce service de recommandation n'implémente AUCUN des mécanismes
+# suivants, par décision de design explicite :
+#   ✗ Notifications push
+#   ✗ Emails de relance automatique
+#   ✗ Badges ou récompenses virtuelles
+#   ✗ Streaks ou séries quotidiennes
+#   ✗ Compteurs de connexion consécutive
+#   ✗ Tout autre dark pattern de rétention
+#
+# Le système recommande des cours pertinents. Il ne relance pas.
 # ──────────────────────────────────────────────────────────────────────
 
 
