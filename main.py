@@ -16,6 +16,7 @@ Twists traçables :
   T04 : action_completed et business_launched exposés séparément.
   T05 : /segments → segmentation explicite.
   T06 : /insights et /explain → explications basées sur les vraies variables.
+  T07 : /rankings/top-learners → classement du potentiel de réussite.
 """
 import logging
 import os
