@@ -10,6 +10,7 @@
 
 % --- DESIGN & COULEURS (Inspiration Frontend) ---
 \usepackage{xcolor}
+\usepackage{colortbl}
 \definecolor{BrandPrimary}{HTML}{0D9488} % Teal/Emerald du dashboard
 \definecolor{BrandDark}{HTML}{111827}    % Arrière-plan sombre
 \definecolor{BrandLight}{HTML}{F3F4F6}   % Gris clair
@@ -99,6 +100,41 @@ Dans le fichier \texttt{recommender.py}, la solution Zenith consiste à mainteni
 ]
     Le modèle de recommandation ne fusionne jamais prématurément le rating et la progression. Cette séparation protège le "c\oe ur" du système contre la contamination par des métriques de surface.
 \end{tcolorbox}
+
+\section{Conception du Dataset (Proxy MovieLens)}
+Le système repose sur une adaptation du dataset \textbf{MovieLens 1M}, utilisé comme proxy pour simuler les interactions complexes d'une plateforme de formation. Cette étape est cruciale pour valider l'indépendance des signaux.
+
+\subsection{Mapping des Entités}
+Le passage du domaine cinématographique au domaine entrepreneurial s'effectue selon le schéma suivant :
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\rowcolor{BrandDark} \color{white} Entité MovieLens & \rowcolor{BrandDark} \color{white} Entité Zenith Learn & \rowcolor{BrandDark} \color{white} Rôle dans l'IA \\ \hline
+User ID & Learner ID & Identifiant unique de l'entrepreneur \\ \hline
+Movie ID & Course ID & Identifiant de l'unité de formation \\ \hline
+Rating (1-5) & Engagement Explicite & Signal subjectif de satisfaction \\ \hline
+Timestamp & Session Metadata & Analyse de la temporalité (T10) \\ \hline
+Génére (Sci-Fi, etc.) & Catégorie (Finance, Agri, etc.) & Guidage par segment (T05) \\ \hline
+\end{tabular}
+\caption{Adaptation du schéma de données MovieLens.}
+\end{table}
+
+\subsection{Construction des Signaux Synthétiques (T01)}
+Pour répondre au TWIST 01, nous avons enrichi ce proxy avec des signaux synthétiques robustes :
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|p{6cm}|l|}
+\hline
+\rowcolor{BrandPrimary} \color{white} Colonne & \rowcolor{BrandPrimary} \color{white} Origine / Calcul & \rowcolor{BrandPrimary} \color{white} Type \\ \hline
+\texttt{completion\_rate} & Aléatoire contrôlé (distribution Gaussienne) & Continue $[0,1]$ \\ \hline
+\texttt{time\_spent\_hours} & Ratio complétion $\times$ durée théorique & Heures \\ \hline
+\texttt{duree\_heures} & Loi de puissance (simulant des cours de 1h à 40h) & Heures \\ \hline
+\end{tabular}
+\caption{Variables de base pour l'engagement et la complétion.}
+\end{table}
 
 \section{Conclusion}
 En respectant la structure de temporalité et de responsabilité exigée par le sujet, le TWIST 01 remplace l'optimisation aveugle par un \textbf{système d'observation granulaire}. Nous ne créons pas des spectateurs captifs, mais une infrastructure prête à évaluer l'action.
