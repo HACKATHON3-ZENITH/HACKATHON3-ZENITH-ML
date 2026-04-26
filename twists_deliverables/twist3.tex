@@ -71,20 +71,39 @@ S_{C}^{\text{adj}} = \text{Rate}_{\text{comp}} \times \frac{\log(1 + D)}{\log(1 
 \end{equation}
 Où $D$ est la durée théorique du cours en heures. Ainsi, une complétion de 50\% sur un cours de 10h peut peser plus lourd qu'un 100\% sur un cours de 30 minutes.
 
-\section{Évolution de la structure du Dataset}
-Le dataset Zenith Learn s'enrichit de colonnes métaboliques permettant à l'IA d'ajuster son jugement en fonction de la profondeur du contenu.
+\section{Nouvelle Structure du Dataset (Spécification T03)}
+Le dataset ne se limite plus aux signaux bruts du proxy. Il intègre désormais une couche d'ingénierie de caractéristiques (\textit{Feature Engineering}) pour corriger le biais de durée.
+
+\subsection{Schéma logique des interactions}
+Voici la structure complète de la table \texttt{interactions\_df} après application du TWIST 03 :
 
 \begin{table}[h!]
 \centering
 \begin{tabular}{|l|l|p{7cm}|}
 \hline
-\rowcolor{BrandDark} \color{white} Nom Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Justification TWIST 03 \\ \hline
-\texttt{duree\_heures} & Float & Point de référence pour le calcul du mérite académique. \\ \hline
-\texttt{completion\_rate} & Float & Taux brut (signal de base). \\ \hline
-\rowcolor{BrandPrimary!10} \texttt{adj\_completion} & Float & \textbf{Signal traité} : Neutralise le biais de durée (Final Feature). \\ \hline
+\rowcolor{BrandDark} \color{white} Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Rôle Algorithmique \\ \hline
+\texttt{learner\_id} & String & Identifiant unique (Anonymisé). \\ \hline
+\texttt{course\_id} & String & Référence au cours. \\ \hline
+\texttt{rating} & Int (1-5) & Base du score d'engagement (T01). \\ \hline
+\texttt{time\_spent} & Float & Temps réellement investi par l'apprenant. \\ \hline
+\texttt{duree\_prevue} & Float & \textbf{Nouvelle colonne (T03)} : Durée attendue du cours. \\ \hline
+\texttt{completion\_rate} & Float & Taux de parcours brut $[0,1]$. \\ \hline
+\rowcolor{BrandPrimary!20} \texttt{adj\_completion} & Float & \textbf{Feature Finale} : Indice de succès académique redressé. \\ \hline
 \end{tabular}
-\caption{Structure du Dataset à l'étape TWIST 03.}
+\caption{Structure enrichie du dataset Zenith Learn — Phase 03.}
 \end{table}
+
+\subsection{Visualisation d'un échantillon (CSV view)}
+Concrètement, le dataset ressemble désormais à ceci dans notre moteur ML :
+
+\begin{tcolorbox}[colback=black, colframe=black, arc=5pt]
+\color{green!80!white}
+\small
+\texttt{learner\_id,course\_id,rating,time\_spent,duree\_prevue,adj\_completion} \\
+\texttt{L\_001,C\_42,5,3.5,4.0,0.85} \quad \textit{\color{gray}// Cours moyen} \\
+\texttt{L\_001,C\_09,4,0.3,0.3,0.61} \quad \textit{\color{gray}// Le 100\% est dévalué (court)} \\
+\texttt{L\_002,C\_77,4,18.0,20.0,0.95} \quad \textit{\color{gray}// Le 90\% est sur-évalué (long)}
+\end{tcolorbox}
 
 \section{Conclusion}
 Le TWIST 03 transforme la complétion d'une mesure de \textit{quantité parcourue} en une mesure de \textit{poids pédagogique}. L'IA de Zenith Learn devient ainsi capable de recommander des parcours longs et exigeants ("Deep Learning entrepreneurial") sans qu'ils soient pénalisés par leur format.
