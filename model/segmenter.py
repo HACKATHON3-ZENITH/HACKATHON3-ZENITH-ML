@@ -9,6 +9,10 @@ TWIST 05 : Le système identifie deux profils distincts.
 Les recommandations DIFFÈRENT entre les deux profils.
 La segmentation est EXPLICITE (fonction dédiée), pas implicite
 ou émergente par hasard.
+
+TWIST 08 : Correction du biais de disponibilité. Un apprenant rapide
+à haut débit mais sans action concrète (entreprise lancée) est maintenu
+dans le segment explorateur pour éviter de polluer les métriques d'élite.
 """
 from typing import Dict, Literal
 
@@ -52,6 +56,14 @@ def segment_user(user_interactions: pd.DataFrame) -> UserSegment:
     # Critère 2 : taux d'actions ≥ 30 %
     action_rate = user_interactions["action_completed"].mean()
     if action_rate >= 0.3:
+        # TWIST 08 : Protection contre les "Fast Learners" sans action réelle.
+        # Si le débit est très élevé (ex: plus de 3 cours suivis) 
+        # mais qu'aucune entreprise n'est lancée, on reste prudent.
+        if len(user_interactions) > 3 and not (user_interactions["business_launched"] == 1).any():
+            # Si le taux de complétion moyen est trop élevé (>90%), c'est peut-être un "grinder"
+            if user_interactions["completion_rate"].mean() > 0.9:
+                return "explorateur" # Maintenu en explorateur (T08)
+        
         return "entrepreneur_actif"
 
     return "explorateur"

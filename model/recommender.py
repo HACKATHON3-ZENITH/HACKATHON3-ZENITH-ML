@@ -9,6 +9,9 @@ Twists adressés directement dans ce module :
              (normalisée par la durée dans preprocessor.py).
   TWIST 05 : Les recommandations sont ajustées par segment utilisateur
              dans compute_final_score().
+  TWIST 08 : Neutralisation du biais des apprenants les plus disponibles.
+             Le modèle identifie les outliers à haut débit et normalise
+             leurs métriques pour éviter qu'ils ne dominent les scores.
 """
 import logging
 from typing import Dict, List, Optional, Tuple
@@ -73,6 +76,10 @@ class ZenithRecommender:
         self.course_business_rates: Dict[str, float] = {}
         self.course_avg_engagement: Dict[str, float] = {}
 
+        # TWIST 08 : Neutralisation du biais (Outliers)
+        self.user_bias_factors: Dict[str, float] = {}
+        self.outlier_user_ids: List[str] = []
+
         self._fitted = False
 
     # ==================================================================
@@ -100,7 +107,10 @@ class ZenithRecommender:
         self._build_user_preference_profiles()
         self._compute_course_stats()
 
-        # TWIST 05 : segmentation explicite
+        # TWIST 08 : Détection des outliers avant segmentation
+        self._detect_outliers()
+
+        # TWIST 05 : segmentation explicite (mise à jour pour T08)
         self.user_segments = segment_all_users(interactions_df)
         logger.info(
             "Segments — actifs : %d, explorateurs : %d",
@@ -243,6 +253,58 @@ class ZenithRecommender:
             self.course_business_rates[cid] = float(grp["business_launched"].mean())
             self.course_avg_engagement[cid] = float(grp["engagement_score"].mean())
 
+    # ------------------------------------------------------------------
+    # TWIST 08 — Neutralisation du biais (Outliers haut débit)
+    # ------------------------------------------------------------------
+
+    def _detect_outliers(self):
+        """
+        TWIST 08 : Identifie les apprenants dont le débit ou le temps de
+        connexion est anormalement élevé.
+        """
+        # Calculer le volume total de complétion et d'engagement par utilisateur
+        user_stats = self.interactions_df.groupby("learner_id").agg({
+            "adjusted_completion": "sum",
+            "engagement_score": "sum",
+            "course_id": "count"
+        }).rename(columns={"course_id": "n_courses"})
+
+        # Métrique de "débit" : volume par cours
+        user_stats["velocity"] = user_stats["adjusted_completion"] / user_stats["n_courses"]
+        
+        # Détection statistique (Mean + 2*STD)
+        threshold_vol = user_stats["adjusted_completion"].mean() + 2 * user_stats["adjusted_completion"].std()
+        threshold_vel = user_stats["velocity"].mean() + 2 * user_stats["velocity"].std()
+
+        self.user_bias_factors = {}
+        self.outlier_user_ids = []
+
+        for uid, row in user_stats.iterrows():
+            factor = 1.0
+            is_outlier = False
+
+            # Si volume trop élevé (apprenant qui a trop de temps libre)
+            if row["adjusted_completion"] > threshold_vol:
+                # Pénalité douce : amortir le surplus
+                factor = min(factor, threshold_vol / row["adjusted_completion"])
+                is_outlier = True
+            
+            # Si vitesse trop élevée (apprenant "trop rapide")
+            if row["velocity"] > threshold_vel:
+                factor = min(factor, threshold_vel / row["velocity"])
+                is_outlier = True
+            
+            self.user_bias_factors[str(uid)] = factor
+            if is_outlier:
+                self.outlier_user_ids.append(str(uid))
+
+        logger.info(
+            "T08 — Outliers détectés : %d/%d (facteur moyen : %.2f)",
+            len(self.outlier_user_ids),
+            len(self.user_ids),
+            np.mean(list(self.user_bias_factors.values()))
+        )
+
     # ==================================================================
     # PRÉDICTION
     # ==================================================================
@@ -335,6 +397,12 @@ class ZenithRecommender:
         # ── TWIST 01 : combinaison EXPLICITE des deux signaux ──
         base_score = self.ALPHA * engagement_pred + self.BETA * completion_pred
 
+        # ── TWIST 08 : neutralisation du biais d'outlier ──
+        # Si le profil actuel subit une correction, on l'applique ici
+        # Note : On ne connaît pas l'ID ici si c'est une prédiction pure,
+        # mais on peut passer un bias_factor optionnel si besoin.
+        # Dans recommand(), on utilise l'id.
+
         # ── TWIST 05 : ajustement par segment ──
         segment_adjustment = 0.0
         segment_reason = ""
@@ -389,6 +457,28 @@ class ZenithRecommender:
 
         return final_score, detail
 
+    def compute_final_score_with_bias(
+        self,
+        engagement_pred: float,
+        completion_pred: float,
+        segment: UserSegment,
+        course_id: str,
+        learner_id: str,
+    ) -> Tuple[float, Dict]:
+        """Extension de compute_final_score incluant le TWIST 08."""
+        score, detail = self.compute_final_score(engagement_pred, completion_pred, segment, course_id)
+        
+        # Application du TWIST 08
+        bias_factor = self.user_bias_factors.get(learner_id, 1.0)
+        if bias_factor < 1.0:
+            original_score = score
+            score *= bias_factor
+            detail["final_score"] = round(score, 4)
+            detail["twist_08_bias_correction"] = round(bias_factor, 4)
+            detail["segment_reason"] += f" | T08: Correction disponibilité (x{bias_factor:.2f})"
+        
+        return score, detail
+
     # ==================================================================
     # RECOMMANDATION
     # ==================================================================
@@ -436,8 +526,8 @@ class ZenithRecommender:
             engagement_pred = 0.7 * eng + 0.3 * content_sim
             completion_pred = comp  # déjà ajusté par durée (T03)
 
-            final_score, detail = self.compute_final_score(
-                engagement_pred, completion_pred, segment, cid
+            final_score, detail = self.compute_final_score_with_bias(
+                engagement_pred, completion_pred, segment, cid, learner_id
             )
 
             # Enrichir avec les métadonnées du cours
@@ -493,14 +583,18 @@ class ZenithRecommender:
             # 4. Diversité des compétences (Nombre de catégories uniques explorées)
             categories_count = user_data["course_id"].nunique()
             
+            # 5. TWIST 08 : Facteur de correction (Neutralisation disponibilité)
+            bias_factor = self.user_bias_factors.get(uid, 1.0)
+            
             # Calcul du Success Potential Score
             # Poids : Business (0.4) + Actions (0.3) + Engagement (0.15) + Segment (0.15)
+            # Puis redressé par le biais T08
             score = (
                 (0.40 if business_launched else 0.0) +
                 (0.30 * min(action_count / 5.0, 1.0)) +
                 (0.15 * avg_engagement) +
                 (0.15 * (1.0 if segment == "entrepreneur_actif" else 0.4))
-            )
+            ) * bias_factor
             
             rankings.append({
                 "learner_id": uid,
