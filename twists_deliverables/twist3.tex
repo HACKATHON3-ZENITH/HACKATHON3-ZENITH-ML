@@ -1,0 +1,92 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- PAQUETS DE BASE ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{geometry}
+\geometry{top=2cm, bottom=2.5cm, left=2cm, right=2cm}
+
+% --- DESIGN & COULEURS (Inspiration Frontend) ---
+\usepackage{xcolor}
+\usepackage{colortbl}
+\definecolor{BrandPrimary}{HTML}{0D9488} % Teal/Emerald
+\definecolor{BrandDark}{HTML}{111827}    % Arrière-plan sombre
+\definecolor{BrandLight}{HTML}{F3F4F6}   % Gris clair
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+
+\usepackage{titlesec}
+\titleformat{\section}{\color{BrandPrimary}\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
+\titleformat{\subsection}{\color{BrandDark}\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+% --- POLICE ---
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+% --- TITRE PREMIUM ---
+\newcommand{\makebrandtitle}{
+    \begin{tcolorbox}[
+        enhanced,
+        colback=BrandDark,
+        colframe=BrandPrimary,
+        arc=10pt,
+        boxrule=2pt,
+        shadow={2pt}{-2pt}{0pt}{black!50},
+        halign=center
+    ]
+        \vspace{0.5cm}
+        {\Huge \bfseries \color{white} ZENITH LEARN} \\
+        \vspace{0.3cm}
+        {\Large \color{BrandPrimary} IA Éthique : Modélisation Algorithmique} \\
+        \vspace{0.5cm}
+        {\small \color{gray} TWIST 03 : Neutralisation du Biais de Durée}
+        \vspace{0.5cm}
+    \end{tcolorbox}
+    \vspace{1cm}
+}
+
+\begin{document}
+
+\makebrandtitle
+
+\section{Analyse sémantique du Twist 03}
+L'énoncé du \textbf{TWIST 03} est sans appel : \textit{"Les cours les plus completés sont les plus courts, pas les plus utiles."} 
+
+Cette phrase dénonce un \textbf{biais de facilité mécanique} : 
+\begin{itemize}
+    \item Un cours "Fast-food" de 20 minutes sera presque toujours complété à 100\%. 
+    \item Un cours "Gastronomique" (fondateur pour un entrepreneur) de 20 heures verra un taux d'abandon naturel plus élevé, non par manque de qualité, mais par la seule difficulté de l'investissement temporel.
+\end{itemize}
+
+\section{Impact sur le modèle de recommandation}
+Si l'IA utilise un taux de complétion brut (\texttt{completion\_rate}), elle va mécaniquement "enterrer" les cours les plus structurants du catalogue sous une pile de micro-formations superficielles. C'est la \textit{dépendance destructrice} : le système croit optimiser l'utilité alors qu'il n'optimise que la zone de confort.
+
+\subsection{Modélisation de la Normalisation ($S_{C}^{adj}$)}
+Pour corriger ce biais, nous introduisons une fonction de pondération logarithmique. L'idée est de donner un "bonus de mérite" aux cours longs.
+\begin{equation}
+S_{C}^{\text{adj}} = \text{Rate}_{\text{comp}} \times \frac{\log(1 + D)}{\log(1 + D_{\text{médiane}})}
+\end{equation}
+Où $D$ est la durée théorique du cours en heures. Ainsi, une complétion de 50\% sur un cours de 10h peut peser plus lourd qu'un 100\% sur un cours de 30 minutes.
+
+\section{Évolution de la structure du Dataset}
+Le dataset Zenith Learn s'enrichit de colonnes métaboliques permettant à l'IA d'ajuster son jugement en fonction de la profondeur du contenu.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|p{7cm}|}
+\hline
+\rowcolor{BrandDark} \color{white} Nom Colonne & \rowcolor{BrandDark} \color{white} Type & \rowcolor{BrandDark} \color{white} Justification TWIST 03 \\ \hline
+\texttt{duree\_heures} & Float & Point de référence pour le calcul du mérite académique. \\ \hline
+\texttt{completion\_rate} & Float & Taux brut (signal de base). \\ \hline
+\rowcolor{BrandPrimary!10} \texttt{adj\_completion} & Float & \textbf{Signal traité} : Neutralise le biais de durée (Final Feature). \\ \hline
+\end{tabular}
+\caption{Structure du Dataset à l'étape TWIST 03.}
+\end{table}
+
+\section{Conclusion}
+Le TWIST 03 transforme la complétion d'une mesure de \textit{quantité parcourue} en une mesure de \textit{poids pédagogique}. L'IA de Zenith Learn devient ainsi capable de recommander des parcours longs et exigeants ("Deep Learning entrepreneurial") sans qu'ils soient pénalisés par leur format.
+
+\end{document}
