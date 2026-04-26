@@ -436,9 +436,9 @@ class ZenithRecommender:
 
         # ── TWIST 09 : Décomposition quantitative ligne par ligne ──
         contributions = [
-            {"factor": "Engagement (Prédiction CF/Contenu)", "weight": self.ALPHA, "value": round(engagement_pred, 4), "impact": round(self.ALPHA * engagement_pred, 4)},
-            {"factor": "Complétion (Prédiction CF)", "weight": self.BETA, "value": round(completion_pred, 4), "impact": round(self.BETA * completion_pred, 4)},
-            {"factor": f"Ajustement Segment ({segment})", "weight": 1.0, "value": round(segment_adjustment, 4), "impact": round(segment_adjustment, 4)}
+            {"variable": "Engagement (Prédiction CF/Contenu)", "weight": self.ALPHA, "value": round(engagement_pred, 4), "contribution": round(self.ALPHA * engagement_pred, 4)},
+            {"variable": "Complétion (Prédiction CF)", "weight": self.BETA, "value": round(completion_pred, 4), "contribution": round(self.BETA * completion_pred, 4)},
+            {"variable": f"Ajustement Segment ({segment})", "weight": 1.0, "value": round(segment_adjustment, 4), "contribution": round(segment_adjustment, 4)}
         ]
 
         detail = {
@@ -486,10 +486,10 @@ class ZenithRecommender:
             detail["segment_reason"] += f" | T08: Correction disponibilité (x{bias_factor:.2f})"
             # TWIST 09 : Ajout de la pénalité de biais dans les contributions
             detail["contributions"].append({
-                "factor": "Pénalité de disponibilité (Outlier T08)",
+                "variable": "Pénalité de disponibilité (Outlier T08)",
                 "weight": "multiplicatif",
                 "value": round(bias_factor, 4),
-                "impact": round(score - original_score, 4)
+                "contribution": round(score - original_score, 4)
             })
         
         return score, detail
@@ -606,18 +606,18 @@ class ZenithRecommender:
             # Puis redressé par le biais T08
             # TWIST 09 : Décomposition pour le score de potentiel investisseur
             contributions = [
-                {"factor": "Lancement d'entreprise", "weight": 0.40, "value": 1.0 if business_launched else 0.0, "impact": 0.40 if business_launched else 0.0},
-                {"factor": "Actions terrain accomplies", "weight": 0.30, "value": round(min(action_count / 5.0, 1.0), 4), "impact": round(0.30 * min(action_count / 5.0, 1.0), 4)},
-                {"factor": "Engagement moyen", "weight": 0.15, "value": round(avg_engagement, 4), "impact": round(0.15 * avg_engagement, 4)},
-                {"factor": f"Segment ({segment})", "weight": 0.15, "value": 1.0 if segment == "entrepreneur_actif" else 0.4, "impact": round(0.15 * (1.0 if segment == "entrepreneur_actif" else 0.4), 4)}
+                {"variable": "Lancement d'entreprise", "weight": 0.40, "value": 1.0 if business_launched else 0.0, "contribution": 0.40 if business_launched else 0.0},
+                {"variable": "Actions terrain accomplies", "weight": 0.30, "value": round(min(action_count / 5.0, 1.0), 4), "contribution": round(0.30 * min(action_count / 5.0, 1.0), 4)},
+                {"variable": "Engagement moyen", "weight": 0.15, "value": round(avg_engagement, 4), "contribution": round(0.15 * avg_engagement, 4)},
+                {"variable": f"Segment ({segment})", "weight": 0.15, "value": 1.0 if segment == "entrepreneur_actif" else 0.4, "contribution": round(0.15 * (1.0 if segment == "entrepreneur_actif" else 0.4), 4)}
             ]
             if bias_factor < 1.0:
-                raw_score = sum(c["impact"] for c in contributions)
+                raw_score = sum(c["contribution"] for c in contributions)
                 contributions.append({
-                    "factor": "Pénalité disponibilité (T08)", 
+                    "variable": "Pénalité disponibilité (T08)", 
                     "weight": "multiplicatif", 
                     "value": round(bias_factor, 4), 
-                    "impact": round(raw_score * bias_factor - raw_score, 4)
+                    "contribution": round(raw_score * bias_factor - raw_score, 4)
                 })
 
             rankings.append({
