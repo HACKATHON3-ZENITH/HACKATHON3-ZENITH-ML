@@ -283,6 +283,7 @@ class LearnerRankingEntry(BaseModel):
     learner_id: str
     score: float
     metrics: Dict
+    contributions: Optional[List[Dict]] = None
     explanation: Optional[Dict] = None
 
 @app.get(

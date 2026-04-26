@@ -434,6 +434,13 @@ class ZenithRecommender:
 
         final_score = base_score + segment_adjustment
 
+        # ── TWIST 09 : Décomposition quantitative ligne par ligne ──
+        contributions = [
+            {"factor": "Engagement (Prédiction CF/Contenu)", "weight": self.ALPHA, "value": round(engagement_pred, 4), "impact": round(self.ALPHA * engagement_pred, 4)},
+            {"factor": "Complétion (Prédiction CF)", "weight": self.BETA, "value": round(completion_pred, 4), "impact": round(self.BETA * completion_pred, 4)},
+            {"factor": f"Ajustement Segment ({segment})", "weight": 1.0, "value": round(segment_adjustment, 4), "impact": round(segment_adjustment, 4)}
+        ]
+
         detail = {
             "engagement_pred": round(engagement_pred, 4),
             "engagement_weight": self.ALPHA,
@@ -446,6 +453,7 @@ class ZenithRecommender:
             "segment_adjustment": round(segment_adjustment, 4),
             "segment_reason": segment_reason,
             "final_score": round(final_score, 4),
+            "contributions": contributions,
             # TWIST 04 : signaux d'action exposés SÉPARÉMENT
             "course_action_rate": round(
                 self.course_action_rates.get(course_id, 0.0), 4
@@ -476,6 +484,13 @@ class ZenithRecommender:
             detail["final_score"] = round(score, 4)
             detail["twist_08_bias_correction"] = round(bias_factor, 4)
             detail["segment_reason"] += f" | T08: Correction disponibilité (x{bias_factor:.2f})"
+            # TWIST 09 : Ajout de la pénalité de biais dans les contributions
+            detail["contributions"].append({
+                "factor": "Pénalité de disponibilité (Outlier T08)",
+                "weight": "multiplicatif",
+                "value": round(bias_factor, 4),
+                "impact": round(score - original_score, 4)
+            })
         
         return score, detail
 
@@ -589,16 +604,26 @@ class ZenithRecommender:
             # Calcul du Success Potential Score
             # Poids : Business (0.4) + Actions (0.3) + Engagement (0.15) + Segment (0.15)
             # Puis redressé par le biais T08
-            score = (
-                (0.40 if business_launched else 0.0) +
-                (0.30 * min(action_count / 5.0, 1.0)) +
-                (0.15 * avg_engagement) +
-                (0.15 * (1.0 if segment == "entrepreneur_actif" else 0.4))
-            ) * bias_factor
-            
+            # TWIST 09 : Décomposition pour le score de potentiel investisseur
+            contributions = [
+                {"factor": "Lancement d'entreprise", "weight": 0.40, "value": 1.0 if business_launched else 0.0, "impact": 0.40 if business_launched else 0.0},
+                {"factor": "Actions terrain accomplies", "weight": 0.30, "value": round(min(action_count / 5.0, 1.0), 4), "impact": round(0.30 * min(action_count / 5.0, 1.0), 4)},
+                {"factor": "Engagement moyen", "weight": 0.15, "value": round(avg_engagement, 4), "impact": round(0.15 * avg_engagement, 4)},
+                {"factor": f"Segment ({segment})", "weight": 0.15, "value": 1.0 if segment == "entrepreneur_actif" else 0.4, "impact": round(0.15 * (1.0 if segment == "entrepreneur_actif" else 0.4), 4)}
+            ]
+            if bias_factor < 1.0:
+                raw_score = sum(c["impact"] for c in contributions)
+                contributions.append({
+                    "factor": "Pénalité disponibilité (T08)", 
+                    "weight": "multiplicatif", 
+                    "value": round(bias_factor, 4), 
+                    "impact": round(raw_score * bias_factor - raw_score, 4)
+                })
+
             rankings.append({
                 "learner_id": uid,
                 "score": round(score, 4),
+                "contributions": contributions,
                 "metrics": {
                     "action_count": int(action_count),
                     "business_launched": bool(business_launched),
