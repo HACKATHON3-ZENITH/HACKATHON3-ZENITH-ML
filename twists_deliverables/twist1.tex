@@ -1,62 +1,106 @@
-\documentclass[12pt,a4paper]{article}
-\usepackage[utf8]{inputenc}
-\usepackage[french]{babel}
-\usepackage{amsmath}
-\usepackage{amsfonts}
-\usepackage{amssymb}
-\usepackage{geometry}
-\geometry{margin=2.5cm}
-\usepackage{hyperref}
+\documentclass[11pt,a4paper]{article}
 
-\title{Modélisation Algorithmique : TWIST 01\\ \large La formation qui crée des entrepreneurs, pas des spectateurs}
-\author{Zenith Learn - Équipe IA}
-\date{\today}
+% --- PAQUETS DE BASE ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{geometry}
+\geometry{top=2cm, bottom=2.5cm, left=2cm, right=2cm}
+
+% --- DESIGN & COULEURS (Inspiration Frontend) ---
+\usepackage{xcolor}
+\definecolor{BrandPrimary}{HTML}{0D9488} % Teal/Emerald du dashboard
+\definecolor{BrandDark}{HTML}{111827}    % Arrière-plan sombre
+\definecolor{BrandLight}{HTML}{F3F4F6}   % Gris clair
+\definecolor{BrandGold}{HTML}{D97706}    % Accentuation
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+
+\usepackage{titlesec}
+\titleformat{\section}{\color{BrandPrimary}\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
+\titleformat{\subsection}{\color{BrandDark}\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+% --- POLICE ---
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+% --- EN-TÊTE ET PIED DE PAGE ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\color{gray}\footnotesize Zenith Learn — IA Éthique}
+\rhead{\color{gray}\footnotesize TWIST 01}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{BrandLight}\leaders\hrule height \headrulewidth\hfill}}
+
+% --- TITRE PREMIUM ---
+\newcommand{\makebrandtitle}{
+    \begin{tcolorbox}[
+        enhanced,
+        colback=BrandDark,
+        colframe=BrandPrimary,
+        arc=10pt,
+        boxrule=2pt,
+        shadow={2pt}{-2pt}{0pt}{black!50},
+        halign=center
+    ]
+        \vspace{0.5cm}
+        {\Huge \bfseries \color{white} ZENITH LEARN} \\
+        \vspace{0.3cm}
+        {\Large \color{BrandPrimary} IA Éthique : Modélisation Algorithmique} \\
+        \vspace{0.5cm}
+        {\small \color{gray} TWIST 01 : Déconstruction de l'Objectif Apparent}
+        \vspace{0.5cm}
+    \end{tcolorbox}
+    \vspace{1cm}
+}
 
 \begin{document}
 
-\maketitle
+\makebrandtitle
 
-\section{Introduction}
-L'objectif du \textbf{TWIST 01} s'inscrit dans la problématique de la plateforme Zenith Learn : passer d'un modèle de recommandation passif (type Netflix) à un modèle actif favorisant l'entrepreneuriat réel. Le sujet souligne un risque majeur : une hypothèse de départ en apparence neutre (maximiser l'engagement) peut devenir une \textit{dépendance destructrice}.
+\begin{tcolorbox}[colback=BrandLight, colframe=BrandLight, arc=5pt]
+    \textbf{Contexte :} Ce document présente la réponse algorithmique au Twist 01, visant à neutraliser la dépendance destructrice de la recommandation par l'engagement brut.
+\end{tcolorbox}
 
-\section{Objectif Apparent et Danger Implicite}
-L'objectif apparent est de recommander les cours maximisant :
+\section{Problématique : Le Piège de l'Engagement}
+Le \textbf{TWIST 01} soulève une contradiction fondamentale : maximiser l'engagement et la complétion peut sembler neutre, mais crée une \textit{dépendance destructrice}. 
+
 \begin{itemize}
-    \item \textbf{L'engagement} : Temps passé, interactions, notes (ratings).
-    \item \textbf{La complétion} : Pourcentage du parcours parcouru.
+    \item \textbf{Hypothèse fausse :} Plus un utilisateur passe de temps sur un cours, plus le cours est utile.
+    \item \textbf{Réalité terrain :} Un cours très engageant peut n'être qu'un divertissement passif (spectateur), tandis qu'un cours complexe et exigeant peut avoir une complétion plus faible tout en étant le catalyseur d'un succès entrepreneurial réel (acteur).
 \end{itemize}
 
-Cependant, le danger réside dans le fait que ces métriques favorisent souvent les "spectateurs" (ceux qui regardent beaucoup de vidéos) plutôt que les "acteurs" (ceux qui appliquent les concepts sur le terrain). Si le système optimise aveuglément ces deux variables sans les dissocier, il contamine les recommandations en poussant des contenus faciles à consommer mais peu utiles à la création d'entreprise.
+\section{Modélisation de "l'Audit de Confiance"}
+Pour ne pas contaminer le système, nous avons dissocié les signaux. Nous ne cherchons pas à maximiser une moyenne fusionnée, mais à observer des comportements distincts.
 
-\section{Modélisation Mathématique Adoptée}
-Pour répondre à ce twist tout en préparant les suivants, nous avons choisi de modéliser ces deux signaux de manière \textbf{indépendante} et \textbf{non-fusionnée}, afin d'éviter la contamination mutuelle.
-
-\subsection{Calcul du Score d'Engagement ($S_{E}$)}
-Le score d'engagement est calculé en combinant le feedback explicite (note) et l'investissement temporel relatif :
+\subsection{Extraction de l'Engagement ($S_{E}$)}
+Nous modélisons l'engagement non comme une réussite, mais comme un \textbf{investissement de confiance} de l'apprenant.
 \begin{equation}
-S_{E}(u, c) = \alpha \cdot \text{Norm}(\text{Rating}_{u,c}) + (1 - \alpha) \cdot \text{Min}\left(\frac{T_{\text{spent}}}{T_{\text{expected}}}, \delta\right)
+S_{E} = 0.6 \cdot R + 0.4 \cdot \min\left(\frac{T_{acc}}{T_{theo}}, 1.5\right)
 \end{equation}
-Où :
-\begin{itemize}
-    \item $\alpha = 0.6$ (poids du rating).
-    \item $\delta = 1.5$ (plafond pour éviter que le sur-visionnage ne biaise positivement le score).
-\end{itemize}
+\textit{Note : Le plafonnement à 1.5 évite de récompenser le "bouclage" infini typique des spectateurs passifs.}
 
-\subsection{Calcul du Score de Complétion ($S_{C}$)}
-La complétion est traitée comme un signal de discipline académique, séparé de la satisfaction :
-\begin{equation}
-S_{C}(u, c) = \text{Rate}_{\text{completion}}
-\end{equation}
+\subsection{Indépendance de la Complétion ($S_{C}$)}
+La complétion reste un indicateur de \textbf{discipline}, mais elle ne doit jamais "tirer" artificiellement la recommandation vers des contenus courts et simples.
 
-\section{Implémentation Technique}
-Dans notre pipeline de données (\texttt{preprocessor.py}), nous avons implémenté :
-\begin{itemize}
-    \item \texttt{compute\_engagement\_score} : Capture l'investissement subjectif.
-    \item \texttt{completion\_rate} : Capture la progression objective.
-\end{itemize}
-\textbf{Résultat} : En maintenant ces deux variables séparées dans le vecteur de caractéristiques (features), nous permettons au modèle de recommander des cours qui peuvent avoir une complétion faible (car difficiles) mais un engagement de haute qualité thérapeutique pour l'entrepreneur.
+\section{Solution Technique : Désinterlacement}
+Dans le fichier \texttt{recommender.py}, la solution Zenith consiste à maintenir ces deux caractéristiques comme des dimensions indépendantes du profil utilisateur. Cela permet aux futurs twists (notamment T04 et T07) d'utiliser l'engagement comme un \textbf{coefficient accélérateur} uniquement si le signal d'action terrain est présent.
+
+\begin{tcolorbox}[
+    enhanced,
+    colback=BrandPrimary!10,
+    colframe=BrandPrimary,
+    title=\textbf{Impact Algorithmique (T01)},
+    arc=5pt
+]
+    Le modèle de recommandation ne fusionne jamais prématurément le rating et la progression. Cette séparation protège le "c\oe ur" du système contre la contamination par des métriques de surface.
+\end{tcolorbox}
 
 \section{Conclusion}
-En traitant l'engagement et la complétion non pas comme une fin en soi, mais comme des signaux distincts à observer, nous neutralisons la "dépendance destructrice" identifiée dans le sujet. Cette modélisation servira de base au futur score de succès entrepreneurial, où l'action terrain viendra arbitrer ces deux signaux.
+En respectant la structure de temporalité et de responsabilité exigée par le sujet, le TWIST 01 remplace l'optimisation aveugle par un \textbf{système d'observation granulaire}. Nous ne créons pas des spectateurs captifs, mais une infrastructure prête à évaluer l'action.
 
 \end{document}
